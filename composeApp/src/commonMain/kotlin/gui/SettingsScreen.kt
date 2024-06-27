@@ -38,25 +38,25 @@ fun SettingsScreen(
         OutlinedTextField(
             value = alias,
             onValueChange = { },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
         )
         Label("Address:", modifier = Modifier.padding(bottom = 5.dp))
         OutlinedTextField(
             value = address,
             onValueChange = { },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
         )
         Label("Username:", modifier = Modifier.padding(bottom = 5.dp))
         OutlinedTextField(
             value = username,
             onValueChange = { },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
         )
         Label("Password:", modifier = Modifier.padding(bottom = 5.dp))
         OutlinedTextField(
             value = password,
             onValueChange = { },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.weight(1f))
         Label("2024 locxter", modifier = Modifier.align(Alignment.CenterHorizontally))
