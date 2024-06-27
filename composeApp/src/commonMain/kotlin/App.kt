@@ -1,6 +1,10 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import gui.DashboardScreenPreview
+import gui.DiagnosticsScreen
+import gui.DiagnosticsScreenPreview
+import gui.MappingScreen
+import gui.MappingScreenPreview
 import gui.SettingsScreenPreview
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -22,7 +26,9 @@ fun App() {
                 }
             }
         }*/
-        DashboardScreenPreview()
+        //DashboardScreenPreview()
+        //DiagnosticsScreenPreview()
+        //MappingScreenPreview()
         //SettingsScreenPreview()
     }
 }
