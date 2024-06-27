@@ -43,7 +43,7 @@ fun DashboardScreen(
         }
         Spacer(Modifier.weight(1f))
         Label("Mode:", modifier = Modifier.padding(bottom = 5.dp))
-        Dropdown(modifier = Modifier.padding(bottom = 5.dp))
+        Dropdown(listOf("House", "Spot"), onSelect = {}, modifier = Modifier.padding(bottom = 5.dp))
         Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
             Label("Start")
         }
