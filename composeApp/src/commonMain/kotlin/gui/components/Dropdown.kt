@@ -27,7 +27,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun Dropdown(
     items: List<String>,
-    onSelect: (String) -> Unit,
+    onSelect: (index: Int, item: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -53,13 +53,13 @@ fun Dropdown(
             onDismissRequest = { expanded = false },
             modifier = Modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
         ) {
-            items.forEach { label ->
+            items.forEachIndexed { index, item ->
                 DropdownMenuItem(onClick = {
-                    selectedText = label
+                    selectedText = item
                     expanded = false
-                    onSelect(label)
+                    onSelect(index, item)
                 }) {
-                    Text(text = label)
+                    Text(text = item)
                 }
             }
         }
@@ -69,5 +69,5 @@ fun Dropdown(
 @Preview
 @Composable
 fun DropdownPreview() {
-    Dropdown(listOf("On", "Off"), {})
+    Dropdown(listOf("On", "Off"), { _, _ -> })
 }
