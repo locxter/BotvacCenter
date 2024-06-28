@@ -1,34 +1,17 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import gui.DashboardScreenPreview
-import gui.DiagnosticsScreen
-import gui.DiagnosticsScreenPreview
-import gui.MappingScreen
-import gui.MappingScreenPreview
-import gui.SettingsScreenPreview
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
+import cafe.adriel.voyager.transitions.SlideTransition
+import gui.DashboardScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        /*
-        var showContent by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
-        }*/
-        //DashboardScreenPreview()
-        //DiagnosticsScreenPreview()
-        //MappingScreenPreview()
-        //SettingsScreenPreview()
+        Navigator(DashboardScreen.Preview()) { navigator ->
+            SlideTransition(navigator)
+        }
     }
 }

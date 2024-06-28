@@ -24,7 +24,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun Navigation(
@@ -56,5 +58,13 @@ fun Navigation(
             Spacer(modifier = Modifier.width(5.dp))
             content()
         }
+    }
+}
+
+@Composable
+@Preview
+fun NavigationPreview() {
+    Navigation({}) {
+        Text("Text")
     }
 }

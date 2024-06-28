@@ -1,0 +1,33 @@
+package gui.components
+
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.SwitchColors
+import androidx.compose.material.SwitchDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
+@Composable
+fun Switch(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+) {
+    androidx.compose.material.Switch(
+        checked, onCheckedChange, modifier, enabled, interactionSource,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = MaterialTheme.colors.primary,
+            checkedTrackColor = MaterialTheme.colors.primary,
+        )
+
+    )
+}
+
+@Composable
+@Preview
+fun SwitchPreview() {
+    Switch(true, {})
+}

@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import botvaccontrol.composeapp.generated.resources.Res
 import botvaccontrol.composeapp.generated.resources.map
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
@@ -20,27 +23,34 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
-@Composable
-fun MappingScreen() {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
-    ) {
-        Navigation(onClick = {}, modifier = Modifier.padding(bottom = 10.dp), isBack = true) {
-            Title("Mapping")
+class MappingScreen() : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
+        ) {
+            Navigation(
+                onClick = { navigator.pop() },
+                modifier = Modifier.padding(bottom = 10.dp),
+                isBack = true
+            ) {
+                Title("Mapping")
+            }
+            Label("Not implemented yet", modifier = Modifier.padding(bottom = 5.dp))
+            Spacer(Modifier.weight(1f))
+            Image(
+                painterResource(Res.drawable.map),
+                modifier = Modifier.fillMaxWidth(),
+                contentDescription = "Map"
+            )
+            Spacer(Modifier.weight(1f))
         }
-        Label("Not implemented yet")
-        Spacer(Modifier.weight(1f))
-        Image(
-            painterResource(Res.drawable.map),
-            modifier = Modifier.fillMaxWidth(),
-            contentDescription = "Map"
-        )
-        Spacer(Modifier.weight(1f))
     }
-}
 
-@Preview
-@Composable
-fun MappingScreenPreview() {
-    MappingScreen()
+    companion object {
+        fun Preview(): Screen {
+            return MappingScreen()
+        }
+    }
 }
