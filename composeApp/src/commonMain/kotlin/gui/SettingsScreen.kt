@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -73,7 +72,7 @@ data class  SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.weight(1f))
-            Label("2024 locxter", textAlign = TextAlign.Center)
+            Label("2024 locxter", modifier = Modifier.align(Alignment.CenterHorizontally))
         }
     }
 
