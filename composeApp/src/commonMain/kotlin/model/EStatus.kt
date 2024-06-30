@@ -3,5 +3,7 @@ package model
 enum class EStatus(val displayName: String) {
     DISCONNECTED("Disconnected"),
     CONNECTED("Connected"),
-    EROOR("Error")
+    CLEANING_HOUSE("Cleaning house"),
+    CLEANING_SPOT("Cleaning spot"),
+    ERROR("Error")
 }
