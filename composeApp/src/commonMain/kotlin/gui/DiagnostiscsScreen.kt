@@ -22,9 +22,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-class DiagnosticsScreen(): Screen {
+class DiagnosticsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -55,7 +54,7 @@ class DiagnosticsScreen(): Screen {
     }
 
     companion object {
-        fun Preview() : Screen {
+        fun Preview(): Screen {
             return DiagnosticsScreen()
         }
     }

@@ -1,7 +1,6 @@
 package gui.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
@@ -19,12 +18,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.toSize
 import model.Time
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -45,12 +42,16 @@ fun TimePicker(
     Column(modifier) {
         OutlinedTextField(
             value = selectedTime.getFormated(),
-            onValueChange = {  },
+            onValueChange = { },
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
                     textFieldSize = coordinates.size.toSize()
-                }.onFocusChanged { if (it.isFocused) { hourExpanded = true} },
+                }.onFocusChanged {
+                    if (it.isFocused) {
+                        hourExpanded = true
+                    }
+                },
             trailingIcon = {
                 Icon(icon, "contentDescription", Modifier.clickable {
                     if (hourExpanded || minuteExpanded) {

@@ -44,7 +44,11 @@ fun Dropdown(
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
                     textFieldSize = coordinates.size.toSize()
-                }.onFocusChanged { if (it.isFocused) { expanded = true} },
+                }.onFocusChanged {
+                    if (it.isFocused) {
+                        expanded = true
+                    }
+                },
             trailingIcon = {
                 Icon(icon, "contentDescription", Modifier.clickable { expanded = !expanded })
             },

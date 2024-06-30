@@ -20,10 +20,9 @@ import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
-class MappingScreen() : Screen {
+class MappingScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow

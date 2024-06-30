@@ -1,8 +1,6 @@
 package gui.components
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.SwitchColors
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

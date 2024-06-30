@@ -9,17 +9,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import gui.components.ConfirmDialog
 import gui.components.Dropdown
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
 import model.EStatus
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 data class DashboardScreen(
     val alias: String,
@@ -50,16 +54,28 @@ data class DashboardScreen(
             ) {
                 Label("Remote")
             }
-            Navigation(onClick = {navigator.push(ScheduleScreen.Preview())}, modifier = Modifier.padding(bottom = 5.dp)) {
+            Navigation(
+                onClick = { navigator.push(ScheduleScreen.Preview()) },
+                modifier = Modifier.padding(bottom = 5.dp)
+            ) {
                 Label("Schedule")
             }
-            Navigation(onClick = {navigator.push(DiagnosticsScreen.Preview())}, modifier = Modifier.padding(bottom = 5.dp)) {
+            Navigation(
+                onClick = { navigator.push(DiagnosticsScreen.Preview()) },
+                modifier = Modifier.padding(bottom = 5.dp)
+            ) {
                 Label("Diagnostics")
             }
-            Navigation(onClick = {navigator.push(MappingScreen.Preview())}, modifier = Modifier.padding(bottom = 5.dp)) {
+            Navigation(
+                onClick = { navigator.push(MappingScreen.Preview()) },
+                modifier = Modifier.padding(bottom = 5.dp)
+            ) {
                 Label("Mapping")
             }
-            Navigation(onClick = {navigator.push(SettingsScreen.Preview())}, modifier = Modifier.padding(bottom = 5.dp)) {
+            Navigation(
+                onClick = { navigator.push(SettingsScreen.Preview()) },
+                modifier = Modifier.padding(bottom = 5.dp)
+            ) {
                 Label("Settings")
             }
             Spacer(Modifier.weight(1f))
@@ -69,9 +85,16 @@ data class DashboardScreen(
                 onSelect = { index, item -> },
                 modifier = Modifier.padding(bottom = 10.dp)
             )
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            var visible by remember { mutableStateOf(false) }
+            Button(modifier = Modifier.fillMaxWidth(), onClick = { visible = true }) {
                 Label("Start")
             }
+            ConfirmDialog(
+                visible,
+                "Lazy dog",
+                "The quick brown fox jumps over the lazy dog",
+                { println("Dismiss"); visible = false },
+                { println("Confirm"); visible = false })
         }
     }
 

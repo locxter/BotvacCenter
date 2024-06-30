@@ -22,9 +22,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-data class  SettingsScreen(
+data class SettingsScreen(
     val alias: String,
     val address: String,
     val username: String,
@@ -40,7 +39,11 @@ data class  SettingsScreen(
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
-            Navigation(onClick = {navigator.pop()}, modifier = Modifier.padding(bottom = 10.dp), isBack = true) {
+            Navigation(
+                onClick = { navigator.pop() },
+                modifier = Modifier.padding(bottom = 10.dp),
+                isBack = true
+            ) {
                 Title("Settings")
             }
             Label("Alias:", modifier = Modifier.padding(bottom = 5.dp))
@@ -77,7 +80,7 @@ data class  SettingsScreen(
     }
 
     companion object {
-        fun Preview() : Screen {
+        fun Preview(): Screen {
             return SettingsScreen("Robot", "http://btvcbrdg.local", "btvcbrdg", "btvcbrdg")
         }
     }

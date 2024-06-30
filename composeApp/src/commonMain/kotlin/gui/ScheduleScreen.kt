@@ -20,16 +20,13 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import gui.components.Dropdown
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Switch
 import gui.components.TimePicker
-import gui.components.TimePickerPreview
 import gui.components.Title
 import model.Schedule
 import model.Time
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
 data class ScheduleScreen(

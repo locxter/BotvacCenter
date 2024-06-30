@@ -1,6 +1,5 @@
 package gui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,30 +10,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import gui.components.DirectionButton
-import gui.components.DirectionButtonPreview
 import gui.components.Dropdown
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
 import model.EDirection
-import model.EStatus
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 data class RemoteScreen(
     var brushRpm: Int,
@@ -80,7 +73,11 @@ data class RemoteScreen(
             OutlinedTextField(
                 value = brushRpmInput.toString(),
                 onValueChange = {
-                    brushRpmInput = try { Integer.valueOf(it)} catch (_: Exception) { 0 }
+                    brushRpmInput = try {
+                        Integer.valueOf(it)
+                    } catch (_: Exception) {
+                        0
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -90,7 +87,11 @@ data class RemoteScreen(
             OutlinedTextField(
                 value = vacuumDutyCycleInput.toString(),
                 onValueChange = {
-                    brushRpmInput = try { Integer.valueOf(it)} catch (_: Exception) { 0 }
+                    brushRpmInput = try {
+                        Integer.valueOf(it)
+                    } catch (_: Exception) {
+                        0
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
