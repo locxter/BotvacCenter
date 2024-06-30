@@ -11,13 +11,12 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun Switch(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: (checked: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+    enabled: Boolean = true
 ) {
     androidx.compose.material.Switch(
-        checked, onCheckedChange, modifier, enabled, interactionSource,
+        checked, onCheckedChange, modifier, enabled,
         colors = SwitchDefaults.colors(
             checkedThumbColor = MaterialTheme.colors.primary,
             checkedTrackColor = MaterialTheme.colors.primary,
