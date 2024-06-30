@@ -72,7 +72,7 @@ data class SettingsScreen(
                 value = passwordInput,
                 onValueChange = { passwordInput = it },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
             )
             Spacer(Modifier.weight(1f))
             Label("2024 locxter", modifier = Modifier.align(Alignment.CenterHorizontally))

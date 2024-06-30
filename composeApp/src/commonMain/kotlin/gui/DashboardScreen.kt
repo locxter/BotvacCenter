@@ -94,7 +94,8 @@ data class DashboardScreen(
                 "Lazy dog",
                 "The quick brown fox jumps over the lazy dog",
                 { println("Dismiss"); visible = false },
-                { println("Confirm"); visible = false })
+                { println("Confirm"); visible = false }
+            )
         }
     }
 
