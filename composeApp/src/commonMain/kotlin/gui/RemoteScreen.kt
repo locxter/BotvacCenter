@@ -101,11 +101,8 @@ data class RemoteScreen(
             Dropdown(
                 listOf("On", "Off"),
                 selected = if (sideBrushEnabledInput) 0 else 1,
-                onSelect = { index, item -> sideBrushEnabledInput = index > 0 },
-                modifier = Modifier.padding(bottom = 10.dp)
+                onSelect = { index, item -> sideBrushEnabledInput = index > 0 }
             )
-            Spacer(Modifier.weight(1f))
-            DiagnosticsScreen.Preview()
         }
     }
 
