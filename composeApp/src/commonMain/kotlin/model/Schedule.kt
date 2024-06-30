@@ -8,4 +8,5 @@ data class Schedule(
     val friday: Time?,
     val saturday: Time?,
     val sunday: Time?,
+    val isEnabled: Boolean = true
 )
