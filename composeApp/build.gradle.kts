@@ -33,9 +33,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.voyager.navigator)
-            implementation(libs.voyager.screenmodel)
-            implementation(libs.cafe.voyager.transitions)
+            implementation("cafe.adriel.voyager:voyager-navigator:1.0.0")
+            implementation("cafe.adriel.voyager:voyager-screenmodel:1.0.0")
+            implementation("cafe.adriel.voyager:voyager-transitions:1.0.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -44,7 +44,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.github.locxter.botvaccontrol"
+    namespace = "com.github.locxter.botvaccenter"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -52,7 +52,7 @@ android {
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
-        applicationId = "com.github.locxter.botvaccontrol"
+        applicationId = "com.github.locxter.botvaccenter"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -86,7 +86,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.github.locxter.botvaccontrol"
+            packageName = "com.github.locxter.botvaccenter"
             packageVersion = "1.0.0"
         }
     }

@@ -11,8 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import botvaccontrol.composeapp.generated.resources.Res
-import botvaccontrol.composeapp.generated.resources.map
+import botvaccenter.composeapp.generated.resources.Res
+import botvaccenter.composeapp.generated.resources.map
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow

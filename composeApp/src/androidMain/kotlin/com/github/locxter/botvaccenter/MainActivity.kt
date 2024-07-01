@@ -1,4 +1,4 @@
-package com.github.locxter.botvaccontrol
+package com.github.locxter.botvaccenter
 
 import App
 import android.os.Bundle

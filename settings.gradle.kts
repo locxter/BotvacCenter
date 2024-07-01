@@ -1,4 +1,4 @@
-rootProject.name = "BotvacControl"
+rootProject.name = "BotvacCenter"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
