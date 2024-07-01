@@ -24,7 +24,7 @@ import gui.components.Navigation
 import gui.components.Title
 
 data class SettingsScreen(
-    val alias: String,
+    val robotName: String,
     val address: String,
     val username: String,
     val password: String
@@ -32,7 +32,7 @@ data class SettingsScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var aliasInput by remember { mutableStateOf(alias) }
+        var robotNameInput by remember { mutableStateOf(robotName) }
         var addressInput by remember { mutableStateOf(address) }
         var usernameInput by remember { mutableStateOf(username) }
         var passwordInput by remember { mutableStateOf(password) }
@@ -46,10 +46,10 @@ data class SettingsScreen(
             ) {
                 Title("Settings")
             }
-            Label("Alias:", modifier = Modifier.padding(bottom = 5.dp))
+            Label("Robot name:", modifier = Modifier.padding(bottom = 5.dp))
             OutlinedTextField(
-                value = aliasInput,
-                onValueChange = { aliasInput = it },
+                value = robotNameInput,
+                onValueChange = { robotNameInput = it },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
             )
