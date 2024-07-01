@@ -1,25 +1,35 @@
-package com.github.locxter.btvccntrl.ng.lib
+package lib
 
-import com.fazecast.jSerialComm.SerialPort
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
-import com.github.locxter.btvccntrl.ng.model.Botvac
-import com.github.locxter.btvccntrl.ng.model.EDirection
-import com.github.locxter.btvccntrl.ng.model.Point
+import model.Botvac
+import model.Day
+import model.EDay
+import model.EDirection
+import model.EStatus
+import model.Point
+import model.Schedule
+import model.Time
 import java.lang.Thread.sleep
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class BotvacController() {
-    var connected: Boolean = false
+    var status: EStatus = EStatus.DISCONNECTED
         private set
-    var device: String = ""
-        private set
-    var useNetwork: Boolean = false
+    var address: String = ""
         private set
     private var username: String = ""
     private var password: String = ""
-    private var serialPort: SerialPort = SerialPort.getCommPort("")
     var botvac: Botvac = Botvac()
     var minPointDistance: Int = 0
         set(value) {
@@ -30,12 +40,8 @@ class BotvacController() {
             field = max(value, 0.0)
         }
 
-    constructor(device: String) : this() {
-        connect(device)
-    }
-
-    constructor(device: String, username: String, password: String) : this() {
-        connect(device, username, password)
+    constructor(address: String, username: String, password: String) : this() {
+        connect(address, username, password)
     }
 
     constructor(minPointDistance: Int) : this() {
@@ -51,95 +57,65 @@ class BotvacController() {
         this.inaccuracyFilterRatio = inaccuracyFilterRatio
     }
 
-    constructor(device: String, minPointDistance: Int) : this() {
+    constructor(
+        address: String,
+        username: String,
+        password: String,
+        minPointDistance: Int
+    ) : this() {
         this.minPointDistance = minPointDistance
-        connect(device)
+        connect(address, username, password)
     }
 
-    constructor(device: String, username: String, password: String, minPointDistance: Int) : this() {
-        this.minPointDistance = minPointDistance
-        connect(device, username, password)
-    }
-
-    constructor(device: String, inaccuracyFilterRatio: Double) : this() {
+    constructor(
+        address: String,
+        username: String,
+        password: String,
+        inaccuracyFilterRatio: Double
+    ) : this() {
         this.inaccuracyFilterRatio = inaccuracyFilterRatio
-        connect(device)
+        connect(address, username, password)
     }
 
-    constructor(device: String, username: String, password: String, inaccuracyFilterRatio: Double) : this() {
-        this.inaccuracyFilterRatio = inaccuracyFilterRatio
-        connect(device, username, password)
-    }
-
-    constructor(device: String, minPointDistance: Int, inaccuracyFilterRatio: Double) : this() {
-        this.minPointDistance = minPointDistance
-        this.inaccuracyFilterRatio = inaccuracyFilterRatio
-        connect(device)
-    }
-
-    constructor(device: String, username: String, password: String, minPointDistance: Int, inaccuracyFilterRatio: Double) : this() {
+    constructor(
+        address: String,
+        username: String,
+        password: String,
+        minPointDistance: Int,
+        inaccuracyFilterRatio: Double
+    ) : this() {
         this.minPointDistance = minPointDistance
         this.inaccuracyFilterRatio = inaccuracyFilterRatio
-        connect(device, username, password)
+        connect(address, username, password)
     }
 
-    fun connect(device: String) {
-        if (!connected) {
-            serialPort = SerialPort.getCommPort(device)
-            serialPort.openPort()
-            serialPort.baudRate = 115200
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 500, 0)
-            connected = true
-            this.device = device
-            this.useNetwork = false
-            sendCommand("TestMode On")
-            sendCommand("SetLED BacklightOff")
-            sendCommand("SetLED ButtonOff")
-            sendCommand("SetLED SpotOff")
-            sendCommand("SetLDSRotation On")
-            sleep(1000)
-        }
-    }
-
-    fun connect(device: String, username: String, password: String) {
-        if (!connected) {
-            connected = true
-            this.device = device
-            this.useNetwork = true
+    fun connect(address: String, username: String, password: String) {
+        if (status == EStatus.DISCONNECTED) {
+            status = EStatus.CONNECTED
+            this.address = address
             this.username = username
             this.password = password
             sendCommand("TestMode On")
-            sendCommand("SetLED BacklightOff")
-            sendCommand("SetLED ButtonOff")
-            sendCommand("SetLED SpotOff")
             sendCommand("SetLDSRotation On")
-            sleep(1000)
+            sleep(3000)
         }
     }
 
     fun disconnect() {
-        if (connected) {
-            sendCommand("SetLED BacklightOn")
-            sendCommand("SetLED ButtonGreen")
-            sendCommand("SetLED SpotOn")
+        if (status == EStatus.CONNECTED) {
             sendCommand("SetLDSRotation Off")
-            sendCommand("ClearFiles")
             sendCommand("TestMode Off")
-            if (!useNetwork) {
-                serialPort.closePort()
-            }
-            connected = false
-            useNetwork = false
-            device = ""
-            username = ""
-            password = ""
-            serialPort = SerialPort.getCommPort("")
-            botvac = Botvac()
+            sleep(3000)
         }
+        status = EStatus.DISCONNECTED
+        address = ""
+        username = ""
+        password = ""
+        botvac = Botvac()
     }
 
     fun updateAccelerometer() {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val lines = sendCommand("GetAccel").lines()
             for (i in lines.indices) {
                 when (i) {
@@ -156,7 +132,7 @@ class BotvacController() {
     }
 
     fun updateCharge() {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val lines = sendCommand("GetCharger").lines()
             for (i in lines.indices) {
                 when (i) {
@@ -169,7 +145,7 @@ class BotvacController() {
     }
 
     fun updateAnalogSensors() {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val lines = sendCommand("GetAnalogSensors").lines().dropLast(1)
             for (i in lines.indices) {
                 when (i) {
@@ -198,7 +174,7 @@ class BotvacController() {
     }
 
     fun updateDigitalSensors() {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val lines = sendCommand("GetDigitalSensors").lines()
             for (i in lines.indices) {
                 when (i) {
@@ -231,7 +207,7 @@ class BotvacController() {
     }
 
     fun updateLidar() {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val lines = sendCommand("GetLDSScan").lines().drop(1).dropLast(2)
             botvac.scan.points.clear()
             for (i in lines.indices) {
@@ -253,8 +229,10 @@ class BotvacController() {
                             (-92.5 * cos(botvac.angle * (PI / 180)))).roundToInt()
                 )
                 val inaccuracyFilter =
-                    (sqrt((point.x - botvac.x.toDouble()).pow(2) +
-                            (point.y - botvac.y.toDouble()).pow(2)) * inaccuracyFilterRatio).roundToInt()
+                    (sqrt(
+                        (point.x - botvac.x.toDouble()).pow(2) +
+                                (point.y - botvac.y.toDouble()).pow(2)
+                    ) * inaccuracyFilterRatio).roundToInt()
                 for (mapPoint in botvac.map.points) {
                     if (point.x >= mapPoint.x - (minPointDistance + inaccuracyFilter) &&
                         point.x <= mapPoint.x + (minPointDistance + inaccuracyFilter) &&
@@ -271,16 +249,104 @@ class BotvacController() {
         }
     }
 
+    fun updateCleaningTime() {
+        if (status == EStatus.CONNECTED) {
+            val lines = sendCommand("GetWarranty").lines()
+            for (i in lines.indices) {
+                when (i) {
+                    0 -> {
+                        botvac.cleaningTime = lines[i].substring(29).toLong(16)
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateDayAndTime() {
+        if (status == EStatus.CONNECTED) {
+            val lines = sendCommand("GetTime").lines()
+            for (i in lines.indices) {
+                when (i) {
+                    0 -> {
+                        botvac.day =
+                            Day(EDay.entries.first { lines[i].substringBefore(' ') == it.displayName })
+                        botvac.time = Time(
+                            lines[i].substringAfter(' ').substringBefore(':').toInt(),
+                            lines[i].substringAfter(':').substringBefore(':').toInt()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateSchedule() {
+        if (status == EStatus.CONNECTED) {
+            val lines = sendCommand("GetSchedule").lines().dropLast(1)
+            val schedule = Schedule()
+            for (i in lines.indices) {
+                when (i) {
+                    0 -> {
+                        schedule.isEnabled = lines[i].substring(12) == "Enabled"
+                    }
+
+                    else -> {
+                        val time: Time? = if (lines[i].substring(10) == "H") {
+                            Time(
+                                lines[i].substring(4, 6).toInt(),
+                                lines[i].substring(7, 9).toInt()
+                            )
+                        } else {
+                            null
+                        }
+                        when (i) {
+                            1 -> {
+                                schedule.sunday = time
+                            }
+
+                            2 -> {
+                                schedule.monday = time
+                            }
+
+                            3 -> {
+                                schedule.tuesday = time
+                            }
+
+                            4 -> {
+                                schedule.wednesday = time
+                            }
+
+                            5 -> {
+                                schedule.thursday = time
+                            }
+
+                            6 -> {
+                                schedule.friday = time
+                            }
+
+                            7 -> {
+                                schedule.saturday = time
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun updateAll() {
         updateAccelerometer()
         updateCharge()
         updateAnalogSensors()
         updateDigitalSensors()
         updateLidar()
+        updateCleaningTime()
+        updateDayAndTime()
+        updateSchedule()
     }
 
     fun moveRobot(distance: Int, speed: Int) {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val validDistance = min(max(distance, -10000), 10000)
             val validSpeed = min(max(speed, 1), 350)
             sendCommand("SetMotor LWheelDist $validDistance RWheelDist $validDistance Speed $validSpeed")
@@ -291,7 +357,7 @@ class BotvacController() {
     }
 
     fun rotateRobot(angle: Int, speed: Int) {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             val validAngle = min(max(angle, -359), 359)
             val validSpeed = min(max(speed, 1), 350)
             val distance = (validAngle * ((250 * PI) / 360)).roundToInt()
@@ -302,19 +368,20 @@ class BotvacController() {
     }
 
     fun controlBrush(rpm: Int) {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             sendCommand("SetMotor Brush RPM ${min(max(rpm, 0), 10000)}")
+            botvac.brushRpm = min(max(rpm, 0), 10000)
         }
     }
 
     fun controlVacuum(dutyCycle: Int) {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             sendCommand("SetMotor VacuumOn VacuumSpeed ${min(max(dutyCycle, 0), 100)}")
         }
     }
 
     fun controlSideBrush(enable: Boolean) {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             if (enable) {
                 sendCommand("SetMotor SideBrushOn SideBrushPower 5000")
             } else {
@@ -324,7 +391,7 @@ class BotvacController() {
     }
 
     fun moveToPoint(point: Point, speed: Int) {
-        if (connected) {
+        if (status == EStatus.CONNECTED) {
             var direction = EDirection.DIRECTION_UP
             var distance = abs(point.y - botvac.y)
             if (point.x < botvac.x) {
@@ -347,11 +414,96 @@ class BotvacController() {
         }
     }
 
-    // Helper method to interact with the robot in a uniform way regardless of the connection mode
+    fun uploadDayAndTime(day: Day, time: Time) {
+        if (status == EStatus.CONNECTED) {
+            sendCommand("SetTime Day ${(day.value.ordinal + 1) % 7} Hour ${time.hour} Min ${time.minute}")
+            botvac.day = day
+            botvac.time = time
+        }
+    }
+
+    fun uploadSchedule(schedule: Schedule) {
+        if (status == EStatus.CONNECTED) {
+            if (schedule.isEnabled) {
+                sendCommand("SetSchedule ON")
+            } else {
+                sendCommand("SetSchedule OFF")
+            }
+            for (i in 0..6) {
+                val time = when (i) {
+                    0 -> schedule.sunday
+                    1 -> schedule.monday
+                    2 -> schedule.tuesday
+                    3 -> schedule.wednesday
+                    4 -> schedule.thursday
+                    5 -> schedule.friday
+                    6 -> schedule.saturday
+                    else -> null
+                }
+                time?.also {
+                    sendCommand("SetSchedule Day $i Hour ${it.hour} Min ${it.minute}")
+                } ?: run {
+                    sendCommand("SetSchedule Day $i Hour 0 Min 0 None")
+                }
+            }
+            botvac.schedule = schedule
+        }
+    }
+
+    fun cleanHouse() {
+        if (status == EStatus.CONNECTED) {
+            sendCommand("SetLDSRotation Off")
+            sendCommand("TestMode Off")
+            sendCommand("Clean House")
+            status = EStatus.CLEANING_HOUSE
+        }
+    }
+
+    fun cleanSpot() {
+        if (status == EStatus.CONNECTED) {
+            sendCommand("SetLDSRotation Off")
+            sendCommand("TestMode Off")
+            sendCommand("Clean Spot")
+            status = EStatus.CLEANING_SPOT
+        }
+    }
+
+    fun cleanSpot(width: Int, height: Int) {
+        if (status == EStatus.CONNECTED) {
+            sendCommand("SetLDSRotation Off")
+            sendCommand("TestMode Off")
+            sendCommand(
+                "Clean Spot Width ${min(max(width, 100), 500)}" +
+                        " Height ${min(max(height, 100), 500)}"
+            )
+            status = EStatus.CLEANING_SPOT
+        }
+    }
+
+    fun stopCleaning() {
+        if (status == EStatus.CLEANING_HOUSE || status == EStatus.CLEANING_SPOT) {
+            sendCommand("Clean Stop")
+            sendCommand("TestMode On")
+            sendCommand("SetLDSRotation On")
+            sleep(3000)
+            status = EStatus.CONNECTED
+        }
+    }
+
+    fun runRawCommand(command: String): String {
+        if (status == EStatus.CONNECTED) {
+            return sendCommand(command)
+        }
+        return ""
+    }
+
     private fun sendCommand(command: String): String {
         var rawResponse = ""
-        if (useNetwork) {
-            val (request, response, result) = Fuel.upload(device, parameters = listOf("command" to command))
+        if (status != EStatus.DISCONNECTED) {
+            val (request, response, result) = Fuel.upload(
+                address,
+                parameters = listOf("command" to command)
+            )
                 .authentication()
                 .basic(username, password)
                 .responseString()
@@ -364,20 +516,6 @@ class BotvacController() {
                     rawResponse = response.body().asString("text/plain")
                 }
             }
-        } else {
-            val bufferedWriter = serialPort.outputStream.bufferedWriter()
-            bufferedWriter.write(command)
-            bufferedWriter.newLine()
-            bufferedWriter.close()
-            val bufferedReader = serialPort.inputStream.bufferedReader()
-            var line: String
-            try {
-                while (bufferedReader.readLine().also { line = it ?: "" } != null) {
-                    rawResponse += line + '\n'
-                }
-            } catch (_: Exception) {
-            }
-            bufferedReader.close()
         }
         return rawResponse.substringAfter('\n').substringBeforeLast('\n')
     }

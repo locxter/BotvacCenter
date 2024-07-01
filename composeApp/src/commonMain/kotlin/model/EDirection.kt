@@ -1,8 +1,8 @@
 package model
 
-enum class EDirection {
-    DIRECTION_UP,
-    DIRECTION_RIGHT,
-    DIRECTION_DOWN,
-    DIRECTION_LEFT,
+enum class EDirection(val point: Point) {
+    DIRECTION_UP(Point(0, 1)),
+    DIRECTION_RIGHT(Point(1, 0)),
+    DIRECTION_DOWN(Point(0, -1)),
+    DIRECTION_LEFT(Point(-1, 0)),
 }

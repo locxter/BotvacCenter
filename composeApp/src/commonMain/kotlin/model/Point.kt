@@ -1,4 +1,4 @@
-package com.github.locxter.btvccntrl.ng.model
+package model
 
 data class Point(
     val x: Int = 0,

@@ -1,4 +1,4 @@
-package com.github.locxter.btvccntrl.ng.model
+package model
 
 data class Botvac(
     var pitch: Double = 0.0,
@@ -19,5 +19,10 @@ data class Botvac(
     var map: Map = Map(),
     var x: Int = 0,
     var y: Int = 0,
-    var angle: Int = 0
+    var angle: Int = 0,
+    var cleaningTime: Long = 0,
+    var day: Day = Day(),
+    var time: Time = Time(),
+    var schedule: Schedule = Schedule(),
+    var brushRpm: Int = 0,
 )

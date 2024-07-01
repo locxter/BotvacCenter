@@ -1,3 +1,3 @@
 package model
 
-data class Day()
+data class Day(val value: EDay = EDay.MONDAY)

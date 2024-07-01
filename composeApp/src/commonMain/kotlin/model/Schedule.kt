@@ -1,12 +1,12 @@
 package model
 
 data class Schedule(
-    val monday: Time?,
-    val tuesday: Time?,
-    val wednesday: Time?,
-    val thurday: Time?,
-    val friday: Time?,
-    val saturday: Time?,
-    val sunday: Time?,
-    val isEnabled: Boolean = true
+    var monday: Time? = null,
+    var tuesday: Time? = null,
+    var wednesday: Time? = null,
+    var thursday: Time? = null,
+    var friday: Time? = null,
+    var saturday: Time? = null,
+    var sunday: Time? = null,
+    var isEnabled: Boolean = true
 )
