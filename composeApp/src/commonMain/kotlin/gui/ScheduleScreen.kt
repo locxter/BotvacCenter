@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import gui.components.Label
@@ -33,6 +35,8 @@ data class ScheduleScreen(
     val isEnabled: Boolean,
     val schedule: Schedule
 ) : Screen {
+    override val key: ScreenKey = uniqueScreenKey
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow

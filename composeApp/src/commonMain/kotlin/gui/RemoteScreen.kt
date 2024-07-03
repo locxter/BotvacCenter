@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import gui.components.DirectionButton
@@ -34,6 +36,8 @@ data class RemoteScreen(
     var vacuumDutyCycle: Int,
     var isSideBrushEnabled: Boolean
 ) : Screen {
+    override val key: ScreenKey = uniqueScreenKey
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow

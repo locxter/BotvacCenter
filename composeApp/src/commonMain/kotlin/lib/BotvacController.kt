@@ -91,13 +91,13 @@ class BotvacController() {
 
     fun connect(address: String, username: String, password: String) {
         if (status == EStatus.DISCONNECTED) {
-            status = EStatus.CONNECTED
             this.address = address
             this.username = username
             this.password = password
             sendCommand("TestMode On")
             sendCommand("SetLDSRotation On")
             sleep(3000)
+            status = EStatus.CONNECTED
         }
     }
 
@@ -254,7 +254,7 @@ class BotvacController() {
             val lines = sendCommand("GetWarranty").lines()
             for (i in lines.indices) {
                 when (i) {
-                    0 -> {
+                    1 -> {
                         botvac.cleaningTime = lines[i].substring(29).toLong(16)
                     }
                 }
