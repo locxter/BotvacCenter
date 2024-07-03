@@ -55,7 +55,7 @@ data class HomeScreen(
                 modifier = Modifier.padding(bottom = 5.dp)
             )
             Label(
-                text = "Status: ${charge}%",
+                text = "Charge: ${charge}%",
                 modifier = Modifier.padding(bottom = 5.dp)
             )
             Label(
