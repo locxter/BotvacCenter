@@ -100,6 +100,7 @@ data class HomeScreen(
             Dropdown(
                 listOf("House", "Spot"),
                 selected = if (cleanSpot) 1 else 0,
+                enabled = status == EStatus.CONNECTED,
                 onSelect = { index, _ -> cleanSpot = index == 1 },
                 modifier = Modifier.padding(bottom = 10.dp)
             )

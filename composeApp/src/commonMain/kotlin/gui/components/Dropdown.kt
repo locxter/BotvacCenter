@@ -29,6 +29,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun Dropdown(
     items: List<String>,
     selected: Int = 0,
+    enabled: Boolean = true,
     onSelect: (index: Int, item: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,9 +51,10 @@ fun Dropdown(
                     }
                 },
             trailingIcon = {
-                Icon(icon, "contentDescription", Modifier.clickable { expanded = !expanded })
+                Icon(icon, "contentDescription", Modifier.clickable { if (enabled) expanded = !expanded } )
             },
-            readOnly = true
+            readOnly = true,
+            enabled = enabled
         )
         DropdownMenu(
             expanded = expanded,
