@@ -104,7 +104,7 @@ data class HomeScreen(
                 modifier = Modifier.padding(bottom = 10.dp)
             )
             Button(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
                         if (botvacController.status == EStatus.CONNECTED) {

@@ -67,7 +67,7 @@ data class RemoteScreen(
                 DirectionButton(EDirection.DIRECTION_RIGHT, {})
                 Spacer(Modifier.weight(1f))
             }
-            Row(modifier = Modifier.padding(bottom = 5.dp)) {
+            Row(modifier = Modifier.padding(bottom = 10.dp)) {
                 Spacer(Modifier.weight(1f))
                 DirectionButton(EDirection.DIRECTION_DOWN, {})
                 Spacer(Modifier.weight(1f))
