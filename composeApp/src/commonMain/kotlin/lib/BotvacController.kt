@@ -94,10 +94,10 @@ class BotvacController() {
             this.address = address
             this.username = username
             this.password = password
+            status = EStatus.CONNECTED
             sendCommand("TestMode On")
             sendCommand("SetLDSRotation On")
             sleep(3000)
-            status = EStatus.CONNECTED
         }
     }
 

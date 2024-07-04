@@ -147,9 +147,9 @@ data class HomeScreen(
                         } else {
                             botvacController.disconnect()
                         }
+                        status = botvacController.status
                         charge = botvacController.botvac.charge
                         cleaningTime = botvacController.botvac.cleaningTime
-                        status = botvacController.status
                         showLoadingPopup = false
                     }
                 }) {
