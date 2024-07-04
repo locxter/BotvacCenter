@@ -34,12 +34,11 @@ fun Dropdown(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(items.getOrNull(selected) ?: "") }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
     val icon = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
     Column(modifier) {
         OutlinedTextField(
-            value = selectedText,
+            value = items.getOrNull(selected) ?: "",
             onValueChange = { },
             modifier = Modifier
                 .fillMaxWidth()
@@ -51,7 +50,10 @@ fun Dropdown(
                     }
                 },
             trailingIcon = {
-                Icon(icon, "contentDescription", Modifier.clickable { if (enabled) expanded = !expanded } )
+                Icon(
+                    icon,
+                    "contentDescription",
+                    Modifier.clickable { if (enabled) expanded = !expanded })
             },
             readOnly = true,
             enabled = enabled
@@ -63,7 +65,6 @@ fun Dropdown(
         ) {
             items.forEachIndexed { index, item ->
                 DropdownMenuItem(onClick = {
-                    selectedText = item
                     expanded = false
                     onSelect(index, item)
                 }) {

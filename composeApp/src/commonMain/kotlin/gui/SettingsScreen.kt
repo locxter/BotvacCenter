@@ -11,11 +11,12 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -33,18 +34,18 @@ data class SettingsScreen(val settings: Settings) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var robotNameInput by rememberSaveable { mutableStateOf(settings.robotName) }
-        var addressInput by rememberSaveable { mutableStateOf(settings.address) }
-        var usernameInput by rememberSaveable { mutableStateOf(settings.username) }
-        var passwordInput by rememberSaveable { mutableStateOf(settings.password) }
+        var robotNameInput by remember { mutableStateOf(settings.robotName) }
+        var addressInput by remember { mutableStateOf(settings.address) }
+        var usernameInput by remember { mutableStateOf(settings.username) }
+        var passwordInput by remember { mutableStateOf(settings.password) }
+        LifecycleEffect(onDisposed = {
+            SettingsController().writeSettings(settings)
+        })
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
             Navigation(
-                onClick = {
-                    SettingsController().writeSettings(settings)
-                    navigator.pop()
-                },
+                onClick = { navigator.pop() },
                 modifier = Modifier.padding(bottom = 10.dp),
                 isBack = true
             ) {

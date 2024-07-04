@@ -38,6 +38,7 @@ kotlin {
             implementation("cafe.adriel.voyager:voyager-transitions:1.0.0")
             implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
             implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

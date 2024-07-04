@@ -29,19 +29,19 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun TimePicker(
     time: Time,
+    enabled: Boolean = true,
     onSelect: (time: Time) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var hourExpanded by remember { mutableStateOf(false) }
     var minuteExpanded by remember { mutableStateOf(false) }
     var selectedHour by remember { mutableStateOf(0) }
-    var selectedTime by remember { mutableStateOf(time) }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
     val icon =
         if (hourExpanded || minuteExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
     Column(modifier) {
         OutlinedTextField(
-            value = selectedTime.getFormated(),
+            value = time.getFormated(),
             onValueChange = { },
             modifier = Modifier
                 .fillMaxWidth()
@@ -54,15 +54,18 @@ fun TimePicker(
                 },
             trailingIcon = {
                 Icon(icon, "contentDescription", Modifier.clickable {
-                    if (hourExpanded || minuteExpanded) {
-                        hourExpanded = false
-                        minuteExpanded = false
-                    } else {
-                        hourExpanded = true
+                    if (enabled) {
+                        if (hourExpanded || minuteExpanded) {
+                            hourExpanded = false
+                            minuteExpanded = false
+                        } else {
+                            hourExpanded = true
+                        }
                     }
                 })
             },
-            readOnly = true
+            readOnly = true,
+            enabled = enabled
         )
         DropdownMenu(
             expanded = hourExpanded,
@@ -86,8 +89,7 @@ fun TimePicker(
         ) {
             for (minute in 0..59) {
                 DropdownMenuItem(onClick = {
-                    selectedTime = Time(selectedHour, minute)
-                    onSelect(selectedTime)
+                    onSelect(Time(selectedHour, minute))
                     minuteExpanded = false
                 }) {
                     Text(text = "${if (selectedHour < 10) "0$selectedHour" else selectedHour}:${if (minute < 10) "0$minute" else minute}")
@@ -100,5 +102,5 @@ fun TimePicker(
 @Preview
 @Composable
 fun TimePickerPreview() {
-    TimePicker(Time(11, 53), { _ -> })
+    TimePicker(Time(11, 53), onSelect = { _ -> })
 }

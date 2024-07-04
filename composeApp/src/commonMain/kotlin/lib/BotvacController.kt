@@ -331,6 +331,7 @@ class BotvacController() {
                     }
                 }
             }
+            botvac.schedule = schedule
         }
     }
 

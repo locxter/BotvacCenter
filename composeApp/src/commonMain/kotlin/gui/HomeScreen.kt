@@ -11,7 +11,7 @@ import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -41,11 +41,11 @@ data class HomeScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var status by rememberSaveable { mutableStateOf(botvacController.status) }
-        var charge by rememberSaveable { mutableStateOf(botvacController.botvac.charge) }
-        var cleaningTime by rememberSaveable { mutableStateOf(botvacController.botvac.cleaningTime) }
-        var showLoadingPopup by rememberSaveable { mutableStateOf(false) }
-        var cleanSpot by rememberSaveable { mutableStateOf(false) }
+        var status by remember { mutableStateOf(botvacController.status) }
+        var charge by remember { mutableStateOf(botvacController.botvac.charge) }
+        var cleaningTime by remember { mutableStateOf(botvacController.botvac.cleaningTime) }
+        var cleanSpot by remember { mutableStateOf(false) }
+        var showLoadingPopup by remember { mutableStateOf(false) }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
@@ -72,7 +72,7 @@ data class HomeScreen(
                 Label("Remote")
             }
             Navigation(
-                onClick = { navigator.push(ScheduleScreen.Preview()) },
+                onClick = { navigator.push(ScheduleScreen(botvacController)) },
                 modifier = Modifier.padding(bottom = 5.dp)
             ) {
                 Label("Schedule")
@@ -107,8 +107,9 @@ data class HomeScreen(
             Button(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                 onClick = {
+                    showLoadingPopup = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (botvacController.status == EStatus.CONNECTED) {
+                        if (status == EStatus.CONNECTED) {
                             if (cleanSpot) {
                                 botvacController.cleanSpot()
                             } else {
@@ -122,6 +123,7 @@ data class HomeScreen(
                             cleaningTime = botvacController.botvac.cleaningTime
                         }
                         status = botvacController.status
+                        showLoadingPopup = false
                     }
                 },
                 enabled = status != EStatus.DISCONNECTED
@@ -137,7 +139,7 @@ data class HomeScreen(
                 onClick = {
                     showLoadingPopup = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (botvacController.status == EStatus.DISCONNECTED) {
+                        if (status == EStatus.DISCONNECTED) {
                             botvacController.connect(
                                 settings.address,
                                 settings.username,

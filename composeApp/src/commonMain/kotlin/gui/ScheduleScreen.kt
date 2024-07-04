@@ -1,12 +1,10 @@
 package gui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,19 +16,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import gui.components.InfoDialog
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Switch
 import gui.components.TimePicker
 import gui.components.Title
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import lib.BotvacController
+import model.Day
+import model.EDay
+import model.EStatus
 import model.Schedule
 import model.Time
 
@@ -43,14 +51,48 @@ data class ScheduleScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val status by remember { mutableStateOf(botvacController.status) }
         var enableSchedule by remember { mutableStateOf(true) }
         var enableMonday by remember { mutableStateOf(true) }
+        var mondayTimeInput by remember { mutableStateOf(Time(11, 30)) }
         var enableTuesday by remember { mutableStateOf(false) }
+        var tuesdayTimeInput by remember { mutableStateOf(Time()) }
         var enableWednesday by remember { mutableStateOf(true) }
+        var wednesdayTimeInput by remember { mutableStateOf(Time(11, 30)) }
         var enableThursday by remember { mutableStateOf(false) }
+        var thursdayTimeInput by remember { mutableStateOf(Time()) }
         var enableFriday by remember { mutableStateOf(true) }
+        var fridayTimeInput by remember { mutableStateOf(Time(11, 30)) }
         var enableSaturday by remember { mutableStateOf(false) }
+        var saturdayTimeInput by remember { mutableStateOf(Time()) }
         var enableSunday by remember { mutableStateOf(false) }
+        var sundayTimeInput by remember { mutableStateOf(Time()) }
+        var showLoadingPopup by remember { mutableStateOf(false) }
+        LifecycleEffect(onStarted = {
+            if (status == EStatus.CONNECTED) {
+                showLoadingPopup = true
+                CoroutineScope(Dispatchers.IO).launch {
+                    botvacController.updateSchedule()
+                    val schedule = botvacController.botvac.schedule
+                    enableSchedule = schedule.isEnabled
+                    enableMonday = schedule.monday != null
+                    mondayTimeInput = schedule.monday ?: Time()
+                    enableTuesday = schedule.tuesday != null
+                    tuesdayTimeInput = schedule.tuesday ?: Time()
+                    enableWednesday = schedule.wednesday != null
+                    wednesdayTimeInput = schedule.wednesday ?: Time()
+                    enableThursday = schedule.thursday != null
+                    thursdayTimeInput = schedule.thursday ?: Time()
+                    enableFriday = schedule.friday != null
+                    fridayTimeInput = schedule.friday ?: Time()
+                    enableSaturday = schedule.saturday != null
+                    saturdayTimeInput = schedule.saturday ?: Time()
+                    enableSunday = schedule.sunday != null
+                    sundayTimeInput = schedule.sunday ?: Time()
+                    showLoadingPopup = false
+                }
+            }
+        })
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
@@ -87,7 +129,12 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(11, 30), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                mondayTimeInput,
+                enabled = enableMonday,
+                onSelect = { mondayTimeInput = it },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 5.dp)
@@ -101,7 +148,12 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(0, 0), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                tuesdayTimeInput,
+                enabled = enableTuesday,
+                onSelect = { tuesdayTimeInput = it },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 5.dp)
@@ -115,7 +167,12 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(11, 30), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                wednesdayTimeInput,
+                enabled = enableWednesday,
+                onSelect = { wednesdayTimeInput = it },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 5.dp)
@@ -129,7 +186,12 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(0, 0), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                thursdayTimeInput,
+                enabled = enableThursday,
+                onSelect = { thursdayTimeInput = it },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 5.dp)
@@ -143,7 +205,12 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(11, 30), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                fridayTimeInput,
+                enabled = enableFriday,
+                onSelect = { time -> fridayTimeInput = time },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 5.dp)
@@ -157,7 +224,12 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(0, 0), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                saturdayTimeInput,
+                enabled = enableSaturday,
+                onSelect = { saturdayTimeInput = it },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 5.dp)
@@ -171,14 +243,54 @@ data class ScheduleScreen(
                     }
                 )
             }
-            TimePicker(Time(0, 0), { _ -> }, modifier = Modifier.padding(bottom = 10.dp))
+            TimePicker(
+                sundayTimeInput,
+                enabled = enableSunday,
+                onSelect = { sundayTimeInput = it },
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
             Spacer(Modifier.weight(1f))
-            Button(modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp), onClick = {}) {
+            Button(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp), onClick = {
+                    showLoadingPopup = true
+                    CoroutineScope(Dispatchers.IO).launch {
+                        botvacController.uploadSchedule(
+                            Schedule(
+                                monday = if (enableMonday) mondayTimeInput else null,
+                                tuesday = if (enableTuesday) tuesdayTimeInput else null,
+                                wednesday = if (enableWednesday) wednesdayTimeInput else null,
+                                thursday = if (enableThursday) thursdayTimeInput else null,
+                                friday = if (enableFriday) fridayTimeInput else null,
+                                saturday = if (enableSaturday) saturdayTimeInput else null,
+                                sunday = if (enableSunday) sundayTimeInput else null,
+                                isEnabled = enableSchedule
+                            )
+                        )
+                        showLoadingPopup = false
+                    }
+                },
+                enabled = status == EStatus.CONNECTED
+            ) {
                 Label("Upload schedule")
             }
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            Button(
+                modifier = Modifier.fillMaxWidth(), onClick = {
+                    showLoadingPopup = true
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val time = Clock.System.now()
+                        val zone = TimeZone.currentSystemDefault()
+                        botvacController.uploadDayAndTime(
+                            Day(EDay.entries[time.toLocalDateTime(zone).dayOfWeek.ordinal]),
+                            Time(time.toLocalDateTime(zone).hour, time.toLocalDateTime(zone).minute)
+                        )
+                        showLoadingPopup = false
+                    }
+                },
+                enabled = status == EStatus.CONNECTED
+            ) {
                 Label("Upload day and time")
             }
+            InfoDialog(showLoadingPopup, "Loading...") { showLoadingPopup = false }
         }
     }
 
