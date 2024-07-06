@@ -68,27 +68,32 @@ data class ScheduleScreen(
         var enableSunday by remember { mutableStateOf(false) }
         var sundayTimeInput by remember { mutableStateOf(Time()) }
         var showLoadingPopup by remember { mutableStateOf(false) }
+        var showErrorPopup by remember { mutableStateOf(false) }
         LifecycleEffect(onStarted = {
             if (status == EStatus.CONNECTED) {
                 showLoadingPopup = true
                 CoroutineScope(Dispatchers.IO).launch {
-                    botvacController.updateSchedule()
-                    val schedule = botvacController.botvac.schedule
-                    enableSchedule = schedule.isEnabled
-                    enableMonday = schedule.monday != null
-                    mondayTimeInput = schedule.monday ?: Time()
-                    enableTuesday = schedule.tuesday != null
-                    tuesdayTimeInput = schedule.tuesday ?: Time()
-                    enableWednesday = schedule.wednesday != null
-                    wednesdayTimeInput = schedule.wednesday ?: Time()
-                    enableThursday = schedule.thursday != null
-                    thursdayTimeInput = schedule.thursday ?: Time()
-                    enableFriday = schedule.friday != null
-                    fridayTimeInput = schedule.friday ?: Time()
-                    enableSaturday = schedule.saturday != null
-                    saturdayTimeInput = schedule.saturday ?: Time()
-                    enableSunday = schedule.sunday != null
-                    sundayTimeInput = schedule.sunday ?: Time()
+                    try {
+                        botvacController.updateSchedule()
+                        val schedule = botvacController.botvac.schedule
+                        enableSchedule = schedule.isEnabled
+                        enableMonday = schedule.monday != null
+                        mondayTimeInput = schedule.monday ?: Time()
+                        enableTuesday = schedule.tuesday != null
+                        tuesdayTimeInput = schedule.tuesday ?: Time()
+                        enableWednesday = schedule.wednesday != null
+                        wednesdayTimeInput = schedule.wednesday ?: Time()
+                        enableThursday = schedule.thursday != null
+                        thursdayTimeInput = schedule.thursday ?: Time()
+                        enableFriday = schedule.friday != null
+                        fridayTimeInput = schedule.friday ?: Time()
+                        enableSaturday = schedule.saturday != null
+                        saturdayTimeInput = schedule.saturday ?: Time()
+                        enableSunday = schedule.sunday != null
+                        sundayTimeInput = schedule.sunday ?: Time()
+                    } catch (exception: Exception) {
+                        showErrorPopup = true
+                    }
                     showLoadingPopup = false
                 }
             }
@@ -254,18 +259,22 @@ data class ScheduleScreen(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp), onClick = {
                     showLoadingPopup = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        botvacController.uploadSchedule(
-                            Schedule(
-                                monday = if (enableMonday) mondayTimeInput else null,
-                                tuesday = if (enableTuesday) tuesdayTimeInput else null,
-                                wednesday = if (enableWednesday) wednesdayTimeInput else null,
-                                thursday = if (enableThursday) thursdayTimeInput else null,
-                                friday = if (enableFriday) fridayTimeInput else null,
-                                saturday = if (enableSaturday) saturdayTimeInput else null,
-                                sunday = if (enableSunday) sundayTimeInput else null,
-                                isEnabled = enableSchedule
+                        try {
+                            botvacController.uploadSchedule(
+                                Schedule(
+                                    monday = if (enableMonday) mondayTimeInput else null,
+                                    tuesday = if (enableTuesday) tuesdayTimeInput else null,
+                                    wednesday = if (enableWednesday) wednesdayTimeInput else null,
+                                    thursday = if (enableThursday) thursdayTimeInput else null,
+                                    friday = if (enableFriday) fridayTimeInput else null,
+                                    saturday = if (enableSaturday) saturdayTimeInput else null,
+                                    sunday = if (enableSunday) sundayTimeInput else null,
+                                    isEnabled = enableSchedule
+                                )
                             )
-                        )
+                        } catch (exception: Exception) {
+                            showErrorPopup = true
+                        }
                         showLoadingPopup = false
                     }
                 },
@@ -277,12 +286,19 @@ data class ScheduleScreen(
                 modifier = Modifier.fillMaxWidth(), onClick = {
                     showLoadingPopup = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        val time = Clock.System.now()
-                        val zone = TimeZone.currentSystemDefault()
-                        botvacController.uploadDayAndTime(
-                            Day(EDay.entries[time.toLocalDateTime(zone).dayOfWeek.ordinal]),
-                            Time(time.toLocalDateTime(zone).hour, time.toLocalDateTime(zone).minute)
-                        )
+                        try {
+                            val time = Clock.System.now()
+                            val zone = TimeZone.currentSystemDefault()
+                            botvacController.uploadDayAndTime(
+                                Day(EDay.entries[time.toLocalDateTime(zone).dayOfWeek.ordinal]),
+                                Time(
+                                    time.toLocalDateTime(zone).hour,
+                                    time.toLocalDateTime(zone).minute
+                                )
+                            )
+                        } catch (exception: Exception) {
+                            showErrorPopup = true
+                        }
                         showLoadingPopup = false
                     }
                 },
@@ -291,6 +307,9 @@ data class ScheduleScreen(
                 Label("Upload day and time")
             }
             InfoDialog(showLoadingPopup, "Loading...") { showLoadingPopup = false }
+            InfoDialog(showErrorPopup, "Failed to communicate with robot") {
+                showErrorPopup = false
+            }
         }
     }
 

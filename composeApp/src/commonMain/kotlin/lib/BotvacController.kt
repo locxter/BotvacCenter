@@ -91,13 +91,21 @@ class BotvacController() {
 
     fun connect(address: String, username: String, password: String) {
         if (status == EStatus.DISCONNECTED) {
-            this.address = address
-            this.username = username
-            this.password = password
-            status = EStatus.CONNECTED
-            sendCommand("TestMode On")
-            sendCommand("SetLDSRotation On")
-            sleep(3000)
+            try {
+                this.address = address
+                this.username = username
+                this.password = password
+                status = EStatus.CONNECTED
+                sendCommand("TestMode On")
+                sendCommand("SetLDSRotation On")
+                sleep(3000)
+            } catch (exception: Exception) {
+                status = EStatus.DISCONNECTED
+                this.address = ""
+                this.username = ""
+                this.password = ""
+                botvac = Botvac()
+            }
         }
     }
 

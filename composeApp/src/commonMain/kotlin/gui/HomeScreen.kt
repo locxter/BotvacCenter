@@ -46,6 +46,7 @@ data class HomeScreen(
         var cleaningTime by remember { mutableStateOf(botvacController.botvac.cleaningTime) }
         var cleanSpot by remember { mutableStateOf(false) }
         var showLoadingPopup by remember { mutableStateOf(false) }
+        var showErrorPopup by remember { mutableStateOf(false) }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
@@ -109,18 +110,22 @@ data class HomeScreen(
                 onClick = {
                     showLoadingPopup = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (status == EStatus.CONNECTED) {
-                            if (cleanSpot) {
-                                botvacController.cleanSpot()
+                        try {
+                            if (status == EStatus.CONNECTED) {
+                                if (cleanSpot) {
+                                    botvacController.cleanSpot()
+                                } else {
+                                    botvacController.cleanHouse()
+                                }
                             } else {
-                                botvacController.cleanHouse()
+                                botvacController.stopCleaning()
+                                botvacController.updateCharge()
+                                charge = botvacController.botvac.charge
+                                botvacController.updateCleaningTime()
+                                cleaningTime = botvacController.botvac.cleaningTime
                             }
-                        } else {
-                            botvacController.stopCleaning()
-                            botvacController.updateCharge()
-                            charge = botvacController.botvac.charge
-                            botvacController.updateCleaningTime()
-                            cleaningTime = botvacController.botvac.cleaningTime
+                        } catch (exception: Exception) {
+                            showErrorPopup = true
                         }
                         status = botvacController.status
                         showLoadingPopup = false
@@ -139,16 +144,23 @@ data class HomeScreen(
                 onClick = {
                     showLoadingPopup = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        if (status == EStatus.DISCONNECTED) {
-                            botvacController.connect(
-                                settings.address,
-                                settings.username,
-                                settings.password
-                            )
-                            botvacController.updateCharge()
-                            botvacController.updateCleaningTime()
-                        } else {
-                            botvacController.disconnect()
+                        try {
+                            if (status == EStatus.DISCONNECTED) {
+                                botvacController.connect(
+                                    settings.address,
+                                    settings.username,
+                                    settings.password
+                                )
+                                botvacController.updateCharge()
+                                botvacController.updateCleaningTime()
+                                if (botvacController.status == EStatus.DISCONNECTED) {
+                                    showErrorPopup = true
+                                }
+                            } else {
+                                botvacController.disconnect()
+                            }
+                        } catch (exception: Exception) {
+                            showErrorPopup = true
                         }
                         status = botvacController.status
                         charge = botvacController.botvac.charge
@@ -163,6 +175,9 @@ data class HomeScreen(
                 }
             }
             InfoDialog(showLoadingPopup, "Loading...") { showLoadingPopup = false }
+            InfoDialog(showErrorPopup, "Failed to communicate with robot") {
+                showErrorPopup = false
+            }
         }
     }
 
