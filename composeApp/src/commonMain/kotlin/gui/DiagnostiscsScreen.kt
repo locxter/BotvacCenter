@@ -21,17 +21,28 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import gui.components.InfoDialog
 import gui.components.Label
 import gui.components.Navigation
 import gui.components.Title
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import lib.BotvacController
+import model.EStatus
 
-class DiagnosticsScreen : Screen {
+data class DiagnosticsScreen(
+    val botvacController: BotvacController
+) : Screen {
     override val key: ScreenKey = uniqueScreenKey
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val status by remember { mutableStateOf(botvacController.status) }
         var data by remember { mutableStateOf("No data") }
+        var showLoadingPopup by remember { mutableStateOf(false) }
+        var showErrorPopup by remember { mutableStateOf(false) }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
@@ -51,15 +62,56 @@ class DiagnosticsScreen : Screen {
                 readOnly = true
             )
             Spacer(Modifier.weight(1f))
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                showLoadingPopup = true
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        data = "GetAccel\n" +
+                                botvacController.runRawCommand("GetAccel") +
+                                "\n\nGetAnalogSensors\n" +
+                                botvacController.runRawCommand("GetAnalogSensors") +
+                                "\n\nGetButtons\n" +
+                                botvacController.runRawCommand("GetButtons") +
+                                "\n\nGetCalInfo\n" +
+                                botvacController.runRawCommand("GetCalInfo") +
+                                "\n\nGetCharger\n" +
+                                botvacController.runRawCommand("GetCharger") +
+                                "\n\nGetDigitalSensors\n" +
+                                botvacController.runRawCommand("GetDigitalSensors") +
+                                "\n\nGetErr\n" +
+                                botvacController.runRawCommand("GetErr") +
+                                "\n\nGetLanguage\n" +
+                                botvacController.runRawCommand("GetLanguage") +
+                                "\n\nGetLDSScan\n" +
+                                botvacController.runRawCommand("GetLDSScan") +
+                                "\n\nGetMotors\n" +
+                                botvacController.runRawCommand("GetMotors") +
+                                "\n\nGetSchedule\n" +
+                                botvacController.runRawCommand("GetSchedule") +
+                                "\n\nGetTime\n" +
+                                botvacController.runRawCommand("GetTime") +
+                                "\n\nGetVersion\n" +
+                                botvacController.runRawCommand("GetVersion") +
+                                "\n\nGetWarranty\n" +
+                                botvacController.runRawCommand("GetWarranty")
+                    } catch (exception: Exception) {
+                        showErrorPopup = true
+                    }
+                    showLoadingPopup = false
+                }
+            }, enabled = status == EStatus.CONNECTED) {
                 Label("Get data")
+            }
+            InfoDialog(showLoadingPopup, "Loading...") { showLoadingPopup = false }
+            InfoDialog(showErrorPopup, "Failed to communicate with robot") {
+                showErrorPopup = false
             }
         }
     }
 
     companion object {
         fun Preview(): Screen {
-            return DiagnosticsScreen()
+            return DiagnosticsScreen(BotvacController())
         }
     }
 }

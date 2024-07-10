@@ -79,7 +79,7 @@ data class HomeScreen(
                 Label("Schedule")
             }
             Navigation(
-                onClick = { navigator.push(DiagnosticsScreen.Preview()) },
+                onClick = { navigator.push(DiagnosticsScreen(botvacController)) },
                 modifier = Modifier.padding(bottom = 5.dp)
             ) {
                 Label("Diagnostics")
