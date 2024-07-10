@@ -6,7 +6,6 @@ import com.github.kittinunf.result.Result
 import model.Botvac
 import model.Day
 import model.EDay
-import model.EDirection
 import model.EStatus
 import model.Point
 import model.Schedule
@@ -386,6 +385,7 @@ class BotvacController() {
     fun controlVacuum(dutyCycle: Int) {
         if (status == EStatus.CONNECTED) {
             sendCommand("SetMotor VacuumOn VacuumSpeed ${min(max(dutyCycle, 0), 100)}")
+            botvac.vacuumDutyCycle = min(max(dutyCycle, 0), 100)
         }
     }
 
@@ -396,6 +396,7 @@ class BotvacController() {
             } else {
                 sendCommand("SetMotor SideBrushOff")
             }
+            botvac.sideBrushEnabled = enable
         }
     }
 
@@ -468,6 +469,89 @@ class BotvacController() {
     fun stopCleaning() {
         if (status == EStatus.CLEANING_HOUSE || status == EStatus.CLEANING_SPOT) {
             sendCommand("Clean Stop")
+            sendCommand("TestMode On")
+            sendCommand("SetLDSRotation On")
+            sleep(3000)
+            status = EStatus.CONNECTED
+        }
+    }
+
+    fun enableRemoteControl() {
+        if (status == EStatus.CONNECTED) {
+            sendCommand("SetSystemMode Hibernate")
+            sleep(5000)
+            sendCommand("SetButton Start")
+            sleep(1000)
+            status = EStatus.REMOTE_CONTROLLED
+        }
+    }
+
+    fun driveForwardRemoteControl(speed: Int) {
+        if (status == EStatus.REMOTE_CONTROLLED) {
+            sendCommand(
+                "DiagTest DriveForever DriveForeverLeftDist 100 DriveForeverRightDist 100 DriveForeverSpeed ${
+                    min(
+                        max(speed, 1),
+                        350
+                    )
+                } OneShot"
+            )
+            sendCommand("SetButton Start")
+        }
+    }
+
+    fun driveBackwardRemoteControl(speed: Int) {
+        if (status == EStatus.REMOTE_CONTROLLED) {
+            sendCommand(
+                "DiagTest DriveForever DriveForeverLeftDist -100 DriveForeverRightDist -100 DriveForeverSpeed ${
+                    min(
+                        max(speed, 1),
+                        350
+                    )
+                } OneShot"
+            )
+            sendCommand("SetButton Start")
+        }
+    }
+
+    fun turnLeftRemoteControl(speed: Int) {
+        if (status == EStatus.REMOTE_CONTROLLED) {
+            sendCommand(
+                "DiagTest DriveForever DriveForeverLeftDist 50 DriveForeverRightDist 100 DriveForeverSpeed ${
+                    min(
+                        max(speed, 1),
+                        350
+                    )
+                } OneShot"
+            )
+            sendCommand("SetButton Start")
+        }
+    }
+
+    fun turnRightRemoteControl(speed: Int) {
+        if (status == EStatus.REMOTE_CONTROLLED) {
+            sendCommand(
+                "DiagTest DriveForever DriveForeverLeftDist 100 DriveForeverRightDist 50 DriveForeverSpeed ${
+                    min(
+                        max(speed, 1),
+                        350
+                    )
+                } OneShot"
+            )
+            sendCommand("SetButton Start")
+        }
+    }
+
+    fun stopDrivingRemoteControl() {
+        if (status == EStatus.REMOTE_CONTROLLED) {
+            sendCommand("DiagTest TestsOff")
+            sendCommand("SetButton Start")
+        }
+    }
+
+    fun disableRemoteControl() {
+        if (status == EStatus.REMOTE_CONTROLLED) {
+            sendCommand("DiagTest TestsOff")
             sendCommand("TestMode On")
             sendCommand("SetLDSRotation On")
             sleep(3000)

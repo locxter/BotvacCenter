@@ -25,4 +25,6 @@ data class Botvac(
     var time: Time = Time(),
     var schedule: Schedule = Schedule(),
     var brushRpm: Int = 0,
+    var vacuumDutyCycle: Int = 0,
+    var sideBrushEnabled: Boolean = false,
 )

@@ -1,5 +1,6 @@
 package gui.components
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
@@ -19,10 +20,17 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun DirectionButton(
     direction: EDirection,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     size: Dp = 75.dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    interactionSource: MutableInteractionSource = MutableInteractionSource()
 ) {
-    Button(onClick = onClick, modifier = modifier.size(size)) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.size(size),
+        enabled = enabled,
+        interactionSource = interactionSource
+    ) {
         Icon(
             imageVector = when (direction) {
                 EDirection.DIRECTION_UP -> Icons.Filled.KeyboardArrowUp

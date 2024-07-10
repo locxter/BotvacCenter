@@ -67,7 +67,7 @@ data class HomeScreen(
             )
             Spacer(Modifier.weight(1f))
             Navigation(
-                onClick = { navigator.push(RemoteScreen.Preview()) },
+                onClick = { navigator.push(RemoteScreen(botvacController)) },
                 modifier = Modifier.padding(bottom = 5.dp)
             ) {
                 Label("Remote")
@@ -85,7 +85,7 @@ data class HomeScreen(
                 Label("Diagnostics")
             }
             Navigation(
-                onClick = { navigator.push(MappingScreen.Preview()) },
+                onClick = { navigator.push(MappingScreen()) },
                 modifier = Modifier.padding(bottom = 5.dp)
             ) {
                 Label("Mapping")
@@ -131,7 +131,7 @@ data class HomeScreen(
                         showLoadingPopup = false
                     }
                 },
-                enabled = status != EStatus.DISCONNECTED
+                enabled = status == EStatus.CONNECTED || status == EStatus.CLEANING_HOUSE || status == EStatus.CLEANING_SPOT
             ) {
                 if (status == EStatus.CLEANING_HOUSE || status == EStatus.CLEANING_SPOT) {
                     Label("Stop cleaning")
