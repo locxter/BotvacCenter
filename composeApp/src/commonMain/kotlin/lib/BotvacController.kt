@@ -399,30 +399,6 @@ class BotvacController() {
         }
     }
 
-    fun moveToPoint(point: Point, speed: Int) {
-        if (status == EStatus.CONNECTED) {
-            var direction = EDirection.DIRECTION_UP
-            var distance = abs(point.y - botvac.y)
-            if (point.x < botvac.x) {
-                distance = abs(point.x - botvac.x)
-                direction = EDirection.DIRECTION_LEFT
-            } else if (point.x > botvac.x) {
-                distance = abs(point.x - botvac.x)
-                direction = EDirection.DIRECTION_RIGHT
-            } else if (point.y < botvac.y) {
-                direction = EDirection.DIRECTION_DOWN
-            }
-            if (botvac.angle != (direction.ordinal * 90)) {
-                var angleToGo = (direction.ordinal * 90) - botvac.angle
-                if (abs(angleToGo) == 270) {
-                    angleToGo /= -3
-                }
-                rotateRobot(angleToGo, speed)
-            }
-            moveRobot(distance, speed)
-        }
-    }
-
     fun uploadDayAndTime(day: Day, time: Time) {
         if (status == EStatus.CONNECTED) {
             sendCommand("SetTime Day ${(day.value.ordinal + 1) % 7} Hour ${time.hour} Min ${time.minute}")
