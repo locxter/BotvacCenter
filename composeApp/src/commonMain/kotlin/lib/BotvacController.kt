@@ -486,7 +486,7 @@ class BotvacController() {
         }
     }
 
-    fun driveForwardRemoteControl(speed: Int) {
+    fun remoteControlDriveForward(speed: Int) {
         if (status == EStatus.REMOTE_CONTROLLED) {
             sendCommand(
                 "DiagTest DriveForever DriveForeverLeftDist 100 DriveForeverRightDist 100 DriveForeverSpeed ${
@@ -500,7 +500,7 @@ class BotvacController() {
         }
     }
 
-    fun driveBackwardRemoteControl(speed: Int) {
+    fun remoteControlDriveBackward(speed: Int) {
         if (status == EStatus.REMOTE_CONTROLLED) {
             sendCommand(
                 "DiagTest DriveForever DriveForeverLeftDist -100 DriveForeverRightDist -100 DriveForeverSpeed ${
@@ -514,7 +514,7 @@ class BotvacController() {
         }
     }
 
-    fun turnLeftRemoteControl(speed: Int) {
+    fun remoteControlTurnLeft(speed: Int) {
         if (status == EStatus.REMOTE_CONTROLLED) {
             sendCommand(
                 "DiagTest DriveForever DriveForeverLeftDist 50 DriveForeverRightDist 100 DriveForeverSpeed ${
@@ -528,7 +528,7 @@ class BotvacController() {
         }
     }
 
-    fun turnRightRemoteControl(speed: Int) {
+    fun remoteControlTurnRight(speed: Int) {
         if (status == EStatus.REMOTE_CONTROLLED) {
             sendCommand(
                 "DiagTest DriveForever DriveForeverLeftDist 100 DriveForeverRightDist 50 DriveForeverSpeed ${
@@ -542,7 +542,7 @@ class BotvacController() {
         }
     }
 
-    fun stopDrivingRemoteControl() {
+    fun remoteControlStopDriving() {
         if (status == EStatus.REMOTE_CONTROLLED) {
             sendCommand("DiagTest TestsOff")
             sendCommand("SetButton Start")

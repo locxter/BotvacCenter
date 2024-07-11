@@ -1,7 +1,7 @@
 package gui
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,105 +51,9 @@ data class RemoteScreen(
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         var status by remember { mutableStateOf(botvacController.status) }
-        val forwardInteractionSource = remember { MutableInteractionSource() }
-        val isForwardPressed by forwardInteractionSource.collectIsPressedAsState()
-        val leftInteractionSource = remember { MutableInteractionSource() }
-        val isLeftPressed by leftInteractionSource.collectIsPressedAsState()
-        val rightInteractionSource = remember { MutableInteractionSource() }
-        val isRightPressed by rightInteractionSource.collectIsPressedAsState()
-        val backwardInteractionSource = remember { MutableInteractionSource() }
-        val isBackwardPressed by backwardInteractionSource.collectIsPressedAsState()
         var speedInput by remember { mutableStateOf(175) }
         var showLoadingPopup by remember { mutableStateOf(false) }
         var showErrorPopup by remember { mutableStateOf(false) }
-        if (isForwardPressed) {
-            LaunchedEffect(Unit) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        botvacController.driveForwardRemoteControl(speedInput)
-                    } catch (exception: Exception) {
-                        showErrorPopup = true
-                    }
-                }
-            }
-            DisposableEffect(Unit) {
-                onDispose {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            botvacController.stopDrivingRemoteControl()
-                        } catch (exception: Exception) {
-                            showErrorPopup = true
-                        }
-                    }
-                }
-            }
-        }
-        if (isLeftPressed) {
-            LaunchedEffect(Unit) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        botvacController.turnLeftRemoteControl(speedInput)
-                    } catch (exception: Exception) {
-                        showErrorPopup = true
-                    }
-                }
-            }
-            DisposableEffect(Unit) {
-                onDispose {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            botvacController.stopDrivingRemoteControl()
-                        } catch (exception: Exception) {
-                            showErrorPopup = true
-                        }
-                    }
-                }
-            }
-        }
-        if (isRightPressed) {
-            LaunchedEffect(Unit) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        botvacController.turnRightRemoteControl(speedInput)
-                    } catch (exception: Exception) {
-                        showErrorPopup = true
-                    }
-                }
-            }
-            DisposableEffect(Unit) {
-                onDispose {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            botvacController.stopDrivingRemoteControl()
-                        } catch (exception: Exception) {
-                            showErrorPopup = true
-                        }
-                    }
-                }
-            }
-        }
-        if (isBackwardPressed) {
-            LaunchedEffect(Unit) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        botvacController.driveBackwardRemoteControl(speedInput)
-                    } catch (exception: Exception) {
-                        showErrorPopup = true
-                    }
-                }
-            }
-            DisposableEffect(Unit) {
-                onDispose {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            botvacController.stopDrivingRemoteControl()
-                        } catch (exception: Exception) {
-                            showErrorPopup = true
-                        }
-                    }
-                }
-            }
-        }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
         ) {
@@ -168,7 +71,32 @@ data class RemoteScreen(
                     EDirection.DIRECTION_UP,
                     {},
                     enabled = status == EStatus.REMOTE_CONTROLLED,
-                    interactionSource = forwardInteractionSource
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Press) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlDriveForward(
+                                                    speedInput
+                                                )
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    } else if (it is PressInteraction.Release) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlStopDriving()
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 )
                 Spacer(Modifier.weight(1f))
             }
@@ -178,14 +106,60 @@ data class RemoteScreen(
                     EDirection.DIRECTION_LEFT,
                     {},
                     enabled = status == EStatus.REMOTE_CONTROLLED,
-                    interactionSource = leftInteractionSource
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Press) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlTurnLeft(speedInput)
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    } else if (it is PressInteraction.Release) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlStopDriving()
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 )
                 Spacer(Modifier.size(115.dp, 75.dp))
                 DirectionButton(
                     EDirection.DIRECTION_RIGHT,
                     {},
                     enabled = status == EStatus.REMOTE_CONTROLLED,
-                    interactionSource = rightInteractionSource
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Press) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlTurnRight(speedInput)
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    } else if (it is PressInteraction.Release) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlStopDriving()
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 )
                 Spacer(Modifier.weight(1f))
             }
@@ -195,7 +169,32 @@ data class RemoteScreen(
                     EDirection.DIRECTION_DOWN,
                     {},
                     enabled = status == EStatus.REMOTE_CONTROLLED,
-                    interactionSource = backwardInteractionSource
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Press) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlDriveBackward(
+                                                    speedInput
+                                                )
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    } else if (it is PressInteraction.Release) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                botvacController.remoteControlStopDriving()
+                                            } catch (exception: Exception) {
+                                                showErrorPopup = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 )
                 Spacer(Modifier.weight(1f))
             }
@@ -207,7 +206,7 @@ data class RemoteScreen(
                     speedInput = try {
                         min(max(Integer.valueOf(it), 1), 350)
                     } catch (_: Exception) {
-                        0
+                        1
                     }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
