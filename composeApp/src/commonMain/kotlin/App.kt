@@ -1,4 +1,6 @@
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
@@ -13,9 +15,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun App() {
     val settings = SettingsController().readSettings()
     val botvacController = BotvacController(50, 0.01)
-    MaterialTheme {
-        Navigator(HomeScreen(settings, botvacController)) { navigator ->
-            SlideTransition(navigator)
+    MaterialTheme(colors = darkColors()) {
+        Surface {
+            Navigator(HomeScreen(settings, botvacController)) { navigator ->
+                SlideTransition(navigator)
+            }
         }
     }
 }
