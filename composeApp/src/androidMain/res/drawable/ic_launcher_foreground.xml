@@ -8,7 +8,7 @@
       android:translateX="115.2"
       android:translateY="115.2">
     <path
-        android:pathData="M0,0h512v512h-512z"
+        android:pathData="M96.8,0L415.2,0A96.8,96.8 0,0 1,512 96.8L512,415.2A96.8,96.8 0,0 1,415.2 512L96.8,512A96.8,96.8 0,0 1,0 415.2L0,96.8A96.8,96.8 0,0 1,96.8 0z"
         android:strokeLineJoin="miter"
         android:strokeWidth="48"
         android:fillColor="#bb86fc"

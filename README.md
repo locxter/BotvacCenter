@@ -18,3 +18,10 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 - Gradle for building the whole thing. Install it with `sdk install gradle`.
 - Android Studio as the necessary IDE for Android development. Install it via the [installation guide](https://developer.android.com/studio/install).
 - Kotlin Multiplatform plugin for Android Studio. Install it from [here](https://kotlinlang.org/docs/multiplatform-plugin-releases.html).
+
+## Helpful stuff
+
+- Convert `.png` to `.ico` via `convert file.png -define icon:auto-resize=256,64,48,32,16 file.ico`.
+- Convert `.png` to `.icns` via `convert file.png file.icns`.
+- Create desktop package via `gradle packageDistributionForCurrentOS`, the final binary will be placed under `composeApp/build/compose/binaries/main/deb`.
+- Create Android package by selecting `release` under `Build/Select Build Variant` and then running `Build App Bundle(s) / APK(s)/Build APK(s)`.

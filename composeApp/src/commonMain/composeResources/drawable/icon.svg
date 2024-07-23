@@ -29,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0846765"
-     inkscape:cx="295.01883"
-     inkscape:cy="281.18982"
+     inkscape:cx="295.01884"
+     inkscape:cy="281.18983"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:snap-page="true"
@@ -69,12 +69,14 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#bb86fc;stroke-width:48;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       style="fill:#bb86fc;fill-opacity:1;stroke-width:48;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect14859"
        width="512"
        height="512"
        x="0"
-       y="0" />
+       y="0"
+       rx="96.803055"
+       ry="96.803055" />
     <path
        id="path11804"
        style="fill:none;stroke:#000000;stroke-width:44.7172;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
