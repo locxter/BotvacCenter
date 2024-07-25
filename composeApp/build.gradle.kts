@@ -60,7 +60,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        setProperty("archivesBaseName", "botvaccenter")
+        setProperty("archivesBaseName", "botvaccenter-$versionName")
     }
     packaging {
         resources {
@@ -94,7 +94,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "botvaccenter"
+            packageName = "BotvacCenter"
             packageVersion = "1.0.0"
             macOS {
                 iconFile.set(project.file("src/desktopMain/resources/icon.icns"))
