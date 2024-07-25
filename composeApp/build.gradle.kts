@@ -60,6 +60,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        setProperty("archivesBaseName", "botvaccenter")
     }
     packaging {
         resources {
@@ -70,9 +71,9 @@ android {
         release {
             isDebuggable = false
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
+            applicationIdSuffix = ".debug"
             isDebuggable = true
         }
     }
