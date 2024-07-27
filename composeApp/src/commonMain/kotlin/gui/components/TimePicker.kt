@@ -51,16 +51,18 @@ fun TimePicker(
                     textFieldSize = coordinates.size.toSize()
                 },
             trailingIcon = {
-                Icon(icon, "contentDescription", Modifier.clickable {
-                    if (enabled) {
-                        if (hourExpanded || minuteExpanded) {
-                            hourExpanded = false
-                            minuteExpanded = false
-                        } else {
-                            hourExpanded = true
+                Icon(icon,
+                    "Arrow ${if (hourExpanded || minuteExpanded) "up" else "down"}",
+                    Modifier.clickable {
+                        if (enabled) {
+                            if (hourExpanded || minuteExpanded) {
+                                hourExpanded = false
+                                minuteExpanded = false
+                            } else {
+                                hourExpanded = true
+                            }
                         }
-                    }
-                })
+                    })
             },
             interactionSource = remember { MutableInteractionSource() }
                 .also { interactionSource ->

@@ -50,8 +50,9 @@ fun Dropdown(
             trailingIcon = {
                 Icon(
                     icon,
-                    "contentDescription",
-                    Modifier.clickable { if (enabled) expanded = !expanded })
+                    "Arrow ${if (expanded) "up" else "down"}",
+                    Modifier.clickable { if (enabled) expanded = !expanded }
+                )
             },
             interactionSource = remember { MutableInteractionSource() }
                 .also { interactionSource ->
