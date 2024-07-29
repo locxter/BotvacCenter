@@ -10,16 +10,6 @@ This is a Kotlin Multiplatform app for controlling and experimenting with Neato 
 
 **Prebuilt packages for Linux (.deb) and Android (.apk) can be found under [Releases](https://github.com/locxter/BotvacCenter/releases).**
 
-## Features
-
-- [x] Start and stop house or spot cleanings remotely.
-- [x] Access crucial statistics (battery charge and total runtime)  at a moments glance.
-- [x] Manually drive the robot like a RC car from one location to another.
-- [x] Check, modify and enable/disable the cleaning schedule.
-- [x] Quickly set the current date and time with a single button press.
-- [x] Get extensive diagnostics data for troubleshooting.
-- [ ] Easily experiment with SLAM via inbuilt sensors (LIDAR and wheel odometry). 
-
 ## Dependencies
 
 I generally try to minimize dependencies, but I'm a one man crew and can therefore only support Debian-based Linux distributions as I'm running one myself. Anyway, you need to have the following packages installed for everything to work properly:
@@ -30,6 +20,41 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 - Gradle for building the whole thing. Install it with `sdk install gradle`.
 - Android Studio as the necessary IDE for Android development. Install it via the [installation guide](https://developer.android.com/studio/install).
 - Kotlin Multiplatform plugin for Android Studio. Install it from [here](https://kotlinlang.org/docs/multiplatform-plugin-releases.html).
+
+## Features
+
+- [x] Start and stop house or spot cleanings remotely.
+- [x] Access crucial statistics (battery charge and total runtime)  at a moments glance.
+- [x] Manually drive the robot like a RC car from one location to another.
+- [x] Check, modify and enable/disable the cleaning schedule.
+- [x] Quickly set the current date and time with a single button press.
+- [x] Get extensive diagnostics data for troubleshooting.
+- [ ] Easily experiment with SLAM via inbuilt sensors (LIDAR and wheel odometry). 
+
+## SLAM
+
+### Proposed algorithm
+
+1. Initial scan of the environment.
+2. If the target position isn't equal to the current position:
+   1. Calculate the path from current to target via the A* path finding algorithm.
+   2. Follow the first 50 cm (or whatever distance between scans proves to be reliable) of the path.
+   3. Perform another scan.
+   4. If needed, perform some post-processing to clean the scan.
+   5. Match the new scan to the last scan with the ICP (Iterative Closest Point) algorithm to get a LIDAR transformation estimate.
+   6. Combine the LIDAR and wheel odometry transformation estimates to update the robot's absolute position.
+   7. Add the current scan to the map based on the determined robot position.
+   8. If needed, perform some post-processing to clean the map.
+3. Wait for the user to either set a new target position and then go the step 2 or stop the mapping process.
+
+### Useful resources
+
+- https://en.wikipedia.org/wiki/A*_search_algorithm
+- https://en.wikipedia.org/wiki/Iterative_closest_point
+- https://andrewjkramer.net/intro-to-lidar-slam/
+- https://andrewjkramer.net/lidar-odometry-with-icp/
+- https://github.com/1988kramer/intel_dataset
+- https://github.com/tomhsu1990/Iterative-Closest-Point-ICP
 
 ## How to use it
 
