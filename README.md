@@ -55,6 +55,10 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 - https://andrewjkramer.net/lidar-odometry-with-icp/
 - https://github.com/1988kramer/intel_dataset
 - https://github.com/tomhsu1990/Iterative-Closest-Point-ICP
+- https://www.land-of-kain.de/docs/icp/
+- https://www.cs.columbia.edu/~allen/F19/NOTES/slam_pka.pdf
+- https://dspace.mit.edu/bitstream/handle/1721.1/119149/16-412j-spring-2005/contents/projects/1aslam_blas_repo.pdf
+- https://www.sciencedirect.com/science/article/pii/S0924271621002586?fr=RR-2&rr=8abb9c92c8c82681
 
 ## How to use it
 
