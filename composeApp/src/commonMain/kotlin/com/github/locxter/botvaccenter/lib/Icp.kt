@@ -64,7 +64,7 @@ class Icp() {
             for (i in 0..<360 step 36) {
                 val temp = moved.getDeepCopy()
                 temp.rotateBy(i.toDouble(), movedMean)
-                val (tempTransformed, _, tempRadians, tempError) = performICP(temp, target)
+                val (tempTransformed, _, tempRadians, tempError) = performIcp(temp, target)
                 if (error > tempError) {
                     error = tempError
                     finalRadians = (i.toDouble() * (PI / 180.0)) + tempRadians
@@ -90,7 +90,7 @@ class Icp() {
         return alignPointClouds()
     }
 
-    private fun performICP(source: IcpPointCloud, target: IcpPointCloud): IcpResult {
+    private fun performIcp(source: IcpPointCloud, target: IcpPointCloud): IcpResult {
         val transformed = source.getDeepCopy()
         var iterations = 0
         var error = getError(transformed, target)
