@@ -2,6 +2,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import botvaccenter.composeapp.generated.resources.Res
 import botvaccenter.composeapp.generated.resources.icon
+import com.github.locxter.botvaccenter.App
 import org.jetbrains.compose.resources.painterResource
 
 fun main() = application {
