@@ -1,5 +1,7 @@
 package com.github.locxter.botvaccenter.model
 
+import java.io.Serializable
+
 data class Schedule(
     var monday: Time? = null,
     var tuesday: Time? = null,
@@ -9,4 +11,4 @@ data class Schedule(
     var saturday: Time? = null,
     var sunday: Time? = null,
     var isEnabled: Boolean = true
-)
+) : Serializable

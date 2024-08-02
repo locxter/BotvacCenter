@@ -11,6 +11,7 @@ import com.github.locxter.botvaccenter.model.EStatus
 import com.github.locxter.botvaccenter.model.Point
 import com.github.locxter.botvaccenter.model.Schedule
 import com.github.locxter.botvaccenter.model.Time
+import java.io.Serializable
 import java.lang.Thread.sleep
 import kotlin.math.PI
 import kotlin.math.abs
@@ -23,7 +24,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class BotvacController() {
+class BotvacController() : Serializable {
     var status: EStatus = EStatus.DISCONNECTED
         private set
     var address: String = ""

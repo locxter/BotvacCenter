@@ -1,5 +1,7 @@
 package com.github.locxter.botvaccenter.model
 
+import java.io.Serializable
+
 data class Botvac(
     var pitch: Double = 0.0,
     var roll: Double = 0.0,
@@ -27,4 +29,4 @@ data class Botvac(
     var brushRpm: Int = 0,
     var vacuumDutyCycle: Int = 0,
     var sideBrushEnabled: Boolean = false,
-)
+) : Serializable

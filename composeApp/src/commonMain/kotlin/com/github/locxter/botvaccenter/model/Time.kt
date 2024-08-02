@@ -1,9 +1,10 @@
 package com.github.locxter.botvaccenter.model
 
+import java.io.Serializable
 import kotlin.math.max
 import kotlin.math.min
 
-class Time {
+class Time : Serializable {
     val hour: Int
     val minute: Int
 
