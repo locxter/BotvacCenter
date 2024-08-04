@@ -6,7 +6,6 @@ import com.github.kittinunf.result.Result
 import com.github.locxter.botvaccenter.model.Botvac
 import com.github.locxter.botvaccenter.model.Day
 import com.github.locxter.botvaccenter.model.EDay
-import com.github.locxter.botvaccenter.model.EDirection
 import com.github.locxter.botvaccenter.model.EStatus
 import com.github.locxter.botvaccenter.model.Point
 import com.github.locxter.botvaccenter.model.Schedule
@@ -15,6 +14,8 @@ import java.io.Serializable
 import java.lang.Thread.sleep
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.acos
+import kotlin.math.asin
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.max
@@ -232,13 +233,15 @@ class BotvacController() : Serializable {
                     )
                 )
                 val point = Point(
-                    (botvac.x + (distance * sin((-i + botvac.angle) * (PI / 180))) +
+                    (botvac.location.x + (distance * sin((-i + botvac.angle) * (PI / 180))) +
                             (-92.5 * sin(botvac.angle * (PI / 180)))).roundToInt(),
-                    (botvac.y + (distance * cos((-i + botvac.angle) * (PI / 180))) +
+                    (botvac.location.y + (distance * cos((-i + botvac.angle) * (PI / 180))) +
                             (-92.5 * cos(botvac.angle * (PI / 180)))).roundToInt()
                 )
-                val inaccuracyFilter = (sqrt(
-                    (point.x - botvac.x.toDouble()).pow(2) + (point.y - botvac.y.toDouble()).pow(2)
+                /*val inaccuracyFilter = (sqrt(
+                    (point.x - botvac.location.x.toDouble()).pow(2) + (point.y - botvac.location.y.toDouble()).pow(
+                        2
+                    )
                 ) * inaccuracyFilterRatio).roundToInt()
                 for (mapPoint in botvac.map.points) {
                     if (point.x >= mapPoint.x - (minPointDistance + inaccuracyFilter) &&
@@ -248,7 +251,7 @@ class BotvacController() : Serializable {
                     ) {
                         unique = false
                     }
-                }
+                }*/
                 if (unique) {
                     botvac.map.points.add(point)
                 }
@@ -354,22 +357,26 @@ class BotvacController() : Serializable {
     }
 
     fun moveRobot(distance: Int, speed: Int) {
-        if (status == EStatus.CONNECTED) {
+        if (status == EStatus.CONNECTED && distance != 0) {
             val validDistance = min(max(distance, -10000), 10000)
             val validSpeed = min(max(speed, 1), 350)
             sendCommand("SetMotor LWheelDist $validDistance RWheelDist $validDistance Speed $validSpeed")
-            botvac.x += (distance * sin(botvac.angle * (PI / 180))).roundToInt()
-            botvac.y += (distance * cos(botvac.angle * (PI / 180))).roundToInt()
+            botvac.oldLocation = botvac.location
+            botvac.location = Point(
+                botvac.location.x + (distance * sin(botvac.angle * (PI / 180))).roundToInt(),
+                botvac.location.y + (distance * cos(botvac.angle * (PI / 180))).roundToInt()
+            )
             sleep((ceil(abs(distance).toDouble() / validSpeed) * 1250).toLong())
         }
     }
 
-    fun rotateRobot(angle: Int, speed: Int) {
-        if (status == EStatus.CONNECTED) {
-            val validAngle = min(max(angle, -359), 359)
+    fun rotateRobot(angle: Double, speed: Int) {
+        if (status == EStatus.CONNECTED && angle != 0.0) {
+            val validAngle = min(max(angle, -359.0), 359.0)
             val validSpeed = min(max(speed, 1), 350)
             val distance = (validAngle * ((250 * PI) / 360)).roundToInt()
             sendCommand("SetMotor LWheelDist $distance RWheelDist ${-1 * distance} Speed $validSpeed")
+            botvac.oldAngle = botvac.angle
             botvac.angle = (botvac.angle + validAngle + 360) % 360
             sleep((ceil(abs(distance).toDouble() / validSpeed) * 1250).toLong())
         }
@@ -377,25 +384,18 @@ class BotvacController() : Serializable {
 
     fun moveToPoint(point: Point, speed: Int) {
         if (status == EStatus.CONNECTED) {
-            var direction = EDirection.DIRECTION_UP
-            var distance = abs(point.y - botvac.y)
-            if (point.x < botvac.x) {
-                distance = abs(point.x - botvac.x)
-                direction = EDirection.DIRECTION_LEFT
-            } else if (point.x > botvac.x) {
-                distance = abs(point.x - botvac.x)
-                direction = EDirection.DIRECTION_RIGHT
-            } else if (point.y < botvac.y) {
-                direction = EDirection.DIRECTION_DOWN
+            val relativePoint = Point(point.x - botvac.location.x, point.y - botvac.location.y)
+            if (relativePoint.x != 0 || relativePoint.y != 0) {
+                val distance =
+                    sqrt((relativePoint.x).toDouble().pow(2) + (relativePoint.y).toDouble().pow(2))
+                val angle =
+                    ((90 - (if (relativePoint.y >= 0) acos(relativePoint.x / distance) else
+                        (2 * PI) - acos(relativePoint.x / distance)) * (180.0 / PI)) + 360) % 360
+                rotateRobot(angle - botvac.angle, speed)
+                moveRobot(distance.roundToInt(), speed)
+                // Maybe rotate back, but could make ICP and error estimates harder
+                //rotateRobot(botvac.oldAngle - botvac.angle, speed)
             }
-            if (botvac.angle != (direction.ordinal * 90)) {
-                var angleToGo = (direction.ordinal * 90) - botvac.angle
-                if (abs(angleToGo) == 270) {
-                    angleToGo /= -3
-                }
-                rotateRobot(angleToGo, speed)
-            }
-            moveRobot(distance, speed)
         }
     }
 

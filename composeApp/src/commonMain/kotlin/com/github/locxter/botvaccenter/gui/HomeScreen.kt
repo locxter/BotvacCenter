@@ -85,7 +85,7 @@ data class HomeScreen(
                 Label("Diagnostics")
             }
             Navigation(
-                onClick = { navigator.push(MappingScreen()) },
+                onClick = { navigator.push(MappingScreen(botvacController)) },
                 modifier = Modifier.padding(bottom = 5.dp)
             ) {
                 Label("Mapping")
