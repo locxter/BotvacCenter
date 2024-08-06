@@ -22,7 +22,6 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import com.github.locxter.botvaccenter.model.Botvac
-import com.github.locxter.botvaccenter.model.Map
 import com.github.locxter.botvaccenter.model.Point
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.PI
@@ -38,44 +37,43 @@ fun MapVisualization(
     onClick: (point: Point) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Label(botvac.map.points.size.toString())
     val backgroundColor = Color(18, 18, 18)
     val mapColor = Color(255, 255, 255)
     val robotColor = Color(0, 255, 0)
     val tempBotvac = botvac.getDeepCopy()
     val textMeasurer = rememberTextMeasurer()
-    //var mapSize by remember { mutableStateOf(tempBotvac.map.points.size) }
     var scalingRatio by remember { mutableStateOf(0.0f) }
     var xOffset by remember { mutableStateOf(0.0f) }
     var yOffset by remember { mutableStateOf(0.0f) }
     var xMin by remember { mutableStateOf(0) }
-    var xMax = 0
+    var xMax by remember { mutableStateOf(0) }
     var yMin by remember { mutableStateOf(0) }
-    var yMax = 0
-    var xRange = 0
-    var yRange = 0
-    var maxRange = 0
-    //mapSize = tempBotvac.map.points.size
-    //scalingRatio = 0.0f
-    //xOffset = 0.0f
-    //yOffset = 0.0f
-    //xMin = 0
-    //yMin = 0
-    println("Recompose")
+    var yMax by remember { mutableStateOf(0) }
+    var xRange by remember { mutableStateOf(0) }
+    var yRange by remember { mutableStateOf(0) }
+    var maxRange by remember { mutableStateOf(0) }
     if (tempBotvac.map.points.isNotEmpty()) {
+        var tempXMin = 0
+        var tempXMax = 0
+        var tempYMin = 0
+        var tempYMax = 0
         // Determine value ranges
         for (point in tempBotvac.map.points) {
-            if (point.x < xMin) {
-                xMin = point.x
-            } else if (point.x > xMax) {
-                xMax = point.x
+            if (point.x < tempXMin) {
+                tempXMin = point.x
+            } else if (point.x > tempXMax) {
+                tempXMax = point.x
             }
-            if (point.y < yMin) {
-                yMin = point.y
-            } else if (point.y > yMax) {
-                yMax = point.y
+            if (point.y < tempYMin) {
+                tempYMin = point.y
+            } else if (point.y > tempYMax) {
+                tempYMax = point.y
             }
         }
+        xMin = tempXMin
+        xMax = tempXMax
+        yMin = tempYMin
+        yMax = tempYMax
         xRange = abs(xMin) + abs(xMax)
         yRange = abs(yMin) + abs(yMax)
         maxRange = max(xRange, yRange)
@@ -89,11 +87,6 @@ fun MapVisualization(
         modifier = modifier.clip(RectangleShape).pointerInput(Unit) {
             detectTapGestures(
                 onTap = { tapOffset ->
-                    println(botvac.map.points.size.toString())
-                    println("Any points: ${tempBotvac.map.points.size}")
-                    println("Any points: ${botvac.map.points.size}")
-                    //println("Any points: ${mapSize}")
-                    println("Scaling ratio: $scalingRatio")
                     if (scalingRatio > 0.0f && tapOffset.x > xOffset && tapOffset.x < size.width - xOffset &&
                         tapOffset.y > yOffset && tapOffset.y < size.height - yOffset
                     ) {
@@ -183,5 +176,5 @@ fun MapVisualization(
 @Composable
 @Preview
 fun MapVisualizationPreview() {
-    //MapVisualization(Botvac(), {})
+    MapVisualization(Botvac(), {})
 }
