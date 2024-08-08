@@ -194,8 +194,6 @@ data class MappingScreen(
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 for (point in path.points) {
-                                    println("Position: ${botvacController.botvac.location}")
-                                    println("Target: $point")
                                     botvacController.moveToPoint(point, 175)
                                     botvac = botvacController.botvac.getDeepCopy()
                                     botvacController.updateLidar()

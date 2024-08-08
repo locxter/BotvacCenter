@@ -2,7 +2,7 @@
 
 ## Overview
 
-> This is an **early work in progress**. Things aren't final and are due to change over time.
+> This is a **work in progress**. Things aren't final and are due to change over time.
 
 ![Overview](overview.png)
 
