@@ -16,7 +16,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     val settings = SettingsController().readSettings()
-    val botvacController = BotvacController(50, 0.01)
+    val botvacController = BotvacController(20, 0.01)
     MaterialTheme(colors = darkColors()) {
         Surface {
             Navigator(HomeScreen(settings, botvacController)) { navigator ->

@@ -31,6 +31,8 @@ data class Botvac(
     var oldScan: Scan = Scan(),
     var oldLocation: Point = Point(),
     var oldAngle: Double = 0.0,
+    var scanLocation: Point = Point(),
+    var scanAngle: Double = 0.0,
 ) : Serializable {
     fun getDeepCopy(): Botvac {
         return this.copy(
@@ -50,6 +52,7 @@ data class Botvac(
             ),
             oldScan = Scan(oldScan.points.map { Point(it.x, it.y) }.toMutableList()),
             oldLocation = Point(oldLocation.x, oldLocation.y),
+            scanLocation = Point(scanLocation.x, scanLocation.y),
         )
     }
 }

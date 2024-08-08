@@ -5,14 +5,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
@@ -20,22 +23,25 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.github.locxter.botvaccenter.gui.components.ConfirmDialog
 import com.github.locxter.botvaccenter.gui.components.InfoDialog
 import com.github.locxter.botvaccenter.gui.components.Label
 import com.github.locxter.botvaccenter.gui.components.MapVisualization
 import com.github.locxter.botvaccenter.gui.components.Navigation
 import com.github.locxter.botvaccenter.gui.components.Title
 import com.github.locxter.botvaccenter.lib.BotvacController
-import com.github.locxter.botvaccenter.lib.SettingsController
-import com.github.locxter.botvaccenter.model.Botvac
+import com.github.locxter.botvaccenter.lib.Pathfinder
 import com.github.locxter.botvaccenter.model.EStatus
 import com.github.locxter.botvaccenter.model.Map
+import com.github.locxter.botvaccenter.model.Path
 import com.github.locxter.botvaccenter.model.Point
 import com.github.locxter.botvaccenter.model.Scan
 import io.github.vinceglb.filekit.compose.rememberFileSaverLauncher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
 
 data class MappingScreen(
@@ -50,8 +56,13 @@ data class MappingScreen(
         val status by remember { mutableStateOf(botvacController.status) }
         var mappingEnabled by remember { mutableStateOf(false) }
         var botvac by remember { mutableStateOf(botvacController.botvac.getDeepCopy()) }
+        val pathfinder by remember { mutableStateOf(Pathfinder(50)) }
+        var path by remember { mutableStateOf(Path()) }
+        var speedInput by remember { mutableStateOf(175) }
         var showLoadingPopup by remember { mutableStateOf(false) }
         var showErrorPopup by remember { mutableStateOf(false) }
+        var showFollowPathPopup by remember { mutableStateOf(false) }
+        var showNoPathPopup by remember { mutableStateOf(false) }
         LifecycleEffect(onStarted = {
             botvacController.botvac.scan = Scan()
             botvacController.botvac.map = Map()
@@ -60,6 +71,8 @@ data class MappingScreen(
             botvacController.botvac.oldScan = Scan()
             botvacController.botvac.oldLocation = Point()
             botvacController.botvac.oldAngle = 0.0
+            botvacController.botvac.scanLocation = Point()
+            botvacController.botvac.scanAngle = 0.0
             botvac = botvacController.botvac.getDeepCopy()
         })
         Column(
@@ -74,12 +87,41 @@ data class MappingScreen(
             }
             MapVisualization(
                 botvac = botvac,
-                onClick = {
-                    if (mappingEnabled) {
-                        println("Target: $it")
+                onClick = { target ->
+                    if (mappingEnabled && botvac.map.points.isNotEmpty() && path.points.isEmpty()) {
+                        showLoadingPopup = true
+                        CoroutineScope(Dispatchers.IO).launch {
+                            // Plan path
+                            pathfinder.map = botvac.map
+                            path = pathfinder.findPath(
+                                botvac.location,
+                                target
+                            )
+                            // Show a confirmation dialog
+                            if (path.points.isNotEmpty()) {
+                                showFollowPathPopup = true
+                            } else {
+                                showNoPathPopup = true
+                            }
+                            showLoadingPopup = false
+                        }
                     }
                 },
                 modifier = Modifier.weight(1f).fillMaxSize().padding(bottom = 10.dp)
+            )
+            Label("Speed:", modifier = Modifier.padding(bottom = 5.dp))
+            OutlinedTextField(
+                value = speedInput.toString(),
+                onValueChange = {
+                    speedInput = try {
+                        min(max(Integer.valueOf(it), 1), 350)
+                    } catch (_: Exception) {
+                        1
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
             )
             Button(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
@@ -104,6 +146,8 @@ data class MappingScreen(
                         botvacController.botvac.oldScan = Scan()
                         botvacController.botvac.oldLocation = Point()
                         botvacController.botvac.oldAngle = 0.0
+                        botvacController.botvac.scanLocation = Point()
+                        botvacController.botvac.scanAngle = 0.0
                         botvac = botvacController.botvac.getDeepCopy()
                     }
                 },
@@ -138,6 +182,40 @@ data class MappingScreen(
             InfoDialog(showErrorPopup, "Failed to communicate with robot") {
                 showErrorPopup = false
             }
+            ConfirmDialog(
+                visible = showFollowPathPopup,
+                title = "Pathfinder",
+                message = "Follow generated path autonomously?",
+                onDismissRequest = { path.points.clear(); showFollowPathPopup = false },
+                onConfirmation = {
+                    showFollowPathPopup = false
+                    // Follow path if possible
+                    if (path.points.isNotEmpty()) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                for (point in path.points) {
+                                    println("Position: ${botvacController.botvac.location}")
+                                    println("Target: $point")
+                                    botvacController.moveToPoint(point, 175)
+                                    botvac = botvacController.botvac.getDeepCopy()
+                                    botvacController.updateLidar()
+                                    botvac = botvacController.botvac.getDeepCopy()
+                                }
+                                path.points.clear()
+                            } catch (exception: Exception) {
+                                showErrorPopup = true
+                            }
+                        }
+                    }
+                }
+            )
+            ConfirmDialog(
+                visible = showNoPathPopup,
+                title = "Pathfinder",
+                message = "No path found",
+                onDismissRequest = { showNoPathPopup = false },
+                onConfirmation = { showNoPathPopup = false }
+            )
         }
     }
 

@@ -3,6 +3,7 @@ package com.github.locxter.botvaccenter.lib
 import com.github.locxter.botvaccenter.model.IcpAlignment
 import com.github.locxter.botvaccenter.model.IcpPoint
 import com.github.locxter.botvaccenter.model.IcpPointCloud
+import java.io.Serializable
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -10,7 +11,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class Icp() {
+class Icp() : Serializable {
     var source = IcpPointCloud()
         private set
     var target = IcpPointCloud()
@@ -163,7 +164,10 @@ class Icp() {
         val translation: IcpPoint,
         val radians: Double,
         val error: Double
-    )
+    ) : Serializable
 
-    private data class IcpTransformation(val translation: IcpPoint, val radians: Double)
+    private data class IcpTransformation(
+        val translation: IcpPoint,
+        val radians: Double
+    ) : Serializable
 }

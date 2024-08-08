@@ -1,12 +1,13 @@
 package com.github.locxter.botvaccenter.model
 
+import java.io.Serializable
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 data class IcpPointCloud(
     val points: MutableList<IcpPoint> = mutableListOf()
-) {
+): Serializable {
     fun moveBy(translation: IcpPoint) {
         points.replaceAll {
             IcpPoint(it.x + translation.x, it.y + translation.y)
