@@ -41,7 +41,8 @@ class BotvacController() : Serializable {
         set(value) {
             field = max(value, 0.0)
         }
-    val icp = Icp()
+    private val icp = Icp()
+    private val useICP = true
 
     constructor(address: String, username: String, password: String) : this() {
         connect(address, username, password)
@@ -220,30 +221,73 @@ class BotvacController() : Serializable {
     fun updateLidar() {
         if (status == EStatus.CONNECTED) {
             val lines = sendCommand("GetLDSScan").lines().drop(1).dropLast(2)
+            val rawScan = RawScan()
             botvac.oldScan = Scan(botvac.scan.points.map { Point(it.x, it.y) }.toMutableList())
             botvac.scan.points.clear()
             for (i in lines.indices) {
-                var unique = true
                 val distance = lines[i].substringAfter(',').substringBefore(',').toInt()
                 if (distance > 7500 || distance == 0) {
                     continue
                 }
+                rawScan.points.add(PolarPoint(i, distance))
                 botvac.scan.points.add(
                     Point(
-                        (distance * sin(-i * (PI / 180))).roundToInt(),
-                        ((distance * cos(-i * (PI / 180))) - 92.5).roundToInt()
+                        (distance * sin(-i * (PI / 180.0))).roundToInt(),
+                        ((distance * cos(-i * (PI / 180.0))) - 92.5).roundToInt()
                     )
                 )
+            }
+            if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty() && useICP) {
+                println("\nICP pose estimate used")
+                println("Location: ${botvac.location}")
+                println("Angle: ${botvac.angle}")
+                println("Scan location: ${botvac.scanLocation}")
+                println("Scan angle: ${botvac.scanAngle}")
+                println("New scan size: ${botvac.scan.points.size}")
+                println("Old scan size: ${botvac.oldScan.points.size}")
+                val alignment = icp.alignPointClouds(
+                    botvac.scan.toIcpPointCloud(),
+                    botvac.oldScan.toIcpPointCloud()
+                )
+                println("ICP translation: ${alignment.translation}")
+                println("ICP rotation: ${alignment.rotation}")
+                val icpLocation = Point(
+                    botvac.scanLocation.x + (alignment.translation.x).roundToInt(),
+                    botvac.scanLocation.y + (alignment.translation.y).roundToInt()
+                )
+                // Maybe not correct?
+                val icpAngle = (botvac.scanAngle - (alignment.rotation % 360) + 360) % 360
+                println("ICP location: $icpLocation")
+                println("ICP angle: $icpAngle")
+                if (icpLocation.x >= botvac.location.x - max(botvac.location.x * 0.2, 200.0) &&
+                    icpLocation.x <= botvac.location.x + max(botvac.location.x * 0.2, 200.0)
+                ) {
+                    botvac.location = Point(icpLocation.x, botvac.location.y)
+                }
+                if (icpLocation.y >= botvac.location.y - max(botvac.location.y * 0.2, 200.0) &&
+                    icpLocation.y <= botvac.location.y + max(botvac.location.y * 0.2, 200.0)
+                ) {
+                    botvac.location = Point(botvac.location.x, icpLocation.y)
+                }
+                if (abs(botvac.angle - icpAngle) < 36.0) {
+                    botvac.angle = icpAngle
+                }
+            }
+            println("\nFinal nocation: ${botvac.location}")
+            println("Final angle: ${botvac.angle}")
+            for (polarPoint in rawScan.points) {
+                var unique = true
                 val point = Point(
-                    (botvac.location.x + (distance * sin((-i + botvac.angle) * (PI / 180))) +
-                            (-92.5 * sin(botvac.angle * (PI / 180)))).roundToInt(),
-                    (botvac.location.y + (distance * cos((-i + botvac.angle) * (PI / 180))) +
-                            (-92.5 * cos(botvac.angle * (PI / 180)))).roundToInt()
+                    (botvac.location.x +
+                            (polarPoint.distance * sin((-polarPoint.angle + botvac.angle) * (PI / 180.0))) +
+                            (-92.5 * sin(botvac.angle * (PI / 180.0)))).roundToInt(),
+                    (botvac.location.y +
+                            (polarPoint.distance * cos((-polarPoint.angle + botvac.angle) * (PI / 180.0))) +
+                            (-92.5 * cos(botvac.angle * (PI / 180.0)))).roundToInt()
                 )
                 val inaccuracyFilter = (sqrt(
-                    (point.x - botvac.location.x.toDouble()).pow(2) + (point.y - botvac.location.y.toDouble()).pow(
-                        2
-                    )
+                    (point.x - botvac.location.x.toDouble()).pow(2) +
+                            (point.y - botvac.location.y.toDouble()).pow(2)
                 ) * inaccuracyFilterRatio).roundToInt()
                 for (mapPoint in botvac.map.points) {
                     if (point.x >= mapPoint.x - (minPointDistance + inaccuracyFilter) &&
@@ -258,45 +302,6 @@ class BotvacController() : Serializable {
                     botvac.map.points.add(point)
                 }
             }
-            /*
-            val tempScan = Scan(botvac.scan.points.map { Point(it.x, it.y) }.toMutableList())
-            var translation = botvac.location
-            var rotation = botvac.angle
-            if (botvac.oldScan.points.isNotEmpty()) {
-                println("\nICP pose estimate used")
-                val alignment = icp.alignPointClouds(
-                    botvac.scan.toIcpPointCloud(),
-                    botvac.oldScan.toIcpPointCloud()
-                )
-                println("ICP ALIGNMENT: ${alignment.translation}")
-                println("ICP RAW ROTATION: ${alignment.rotation}")
-                val icpTranslation = Point(
-                    botvac.scanLocation.x + (alignment.translation.x).roundToInt(),
-                    botvac.scanLocation.y + (alignment.translation.y).roundToInt()
-                )
-                val icpRotation = (botvac.scanAngle - alignment.rotation + 360) % 360
-                println("ICP Translation: $icpTranslation")
-                println("ICP Rotation: $icpRotation")
-                if (icpTranslation.x >= translation.x - max(translation.x * 0.2, 200.0) &&
-                    icpTranslation.x <= translation.x + max(translation.x * 0.2, 200.0)) {
-                    translation = Point(icpTranslation.x, translation.y)
-                }
-                if (icpTranslation.y >= translation.y - max(translation.y * 0.2, 200.0) &&
-                    icpTranslation.y <= translation.y + max(translation.y * 0.2, 200.0)) {
-                    translation = Point(translation.x, icpTranslation.y)
-                }
-                if (abs(rotation - icpRotation) < 36.0) {
-                    rotation = icpRotation
-                }
-            }
-            println("Translation: ${translation}")
-            println("Rotation: ${rotation}")
-            tempScan.rotateBy(-rotation)
-            tempScan.moveBy(translation)
-            botvac.map.points.addAll(tempScan.points)
-            botvac.location = translation
-            botvac.angle = rotation
-            */
             /*
             if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty()) {
                 val o2nTransform = icp.alignPointClouds(
@@ -459,8 +464,8 @@ class BotvacController() : Serializable {
             sendCommand("SetMotor LWheelDist $validDistance RWheelDist $validDistance Speed $validSpeed")
             botvac.oldLocation = botvac.location
             botvac.location = Point(
-                botvac.location.x + (distance * sin(botvac.angle * (PI / 180))).roundToInt(),
-                botvac.location.y + (distance * cos(botvac.angle * (PI / 180))).roundToInt()
+                botvac.location.x + (distance * sin(botvac.angle * (PI / 180.0))).roundToInt(),
+                botvac.location.y + (distance * cos(botvac.angle * (PI / 180.0))).roundToInt()
             )
             sleep((ceil(abs(distance).toDouble() / validSpeed) * 1250).toLong())
         }
@@ -489,7 +494,7 @@ class BotvacController() : Serializable {
                     ((90 - (if (relativePoint.y >= 0) acos(relativePoint.x / distance) else
                         (2 * PI) - acos(relativePoint.x / distance)) * (180.0 / PI)) + 360) % 360
                 var deltaAngle = (angle - botvac.angle + 360) % 360
-                if (deltaAngle > 180) {
+                if (deltaAngle > 180.0) {
                     deltaAngle += -360
                 }
                 rotateRobot(deltaAngle, speed)
@@ -711,4 +716,8 @@ class BotvacController() : Serializable {
         }
         return rawResponse.substringAfter('\n').substringBeforeLast('\n')
     }
+
+    private data class PolarPoint(val angle: Int = 0, val distance: Int = 0) : Serializable
+
+    private data class RawScan(val points: MutableList<PolarPoint> = mutableListOf()) : Serializable
 }
