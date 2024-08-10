@@ -41,8 +41,8 @@ class BotvacController() : Serializable {
         set(value) {
             field = max(value, 0.0)
         }
-    private val icp = Icp()
-    private val useICP = true
+    private val icp: Icp = Icp()
+    var useIcp: Boolean = true
 
     constructor(address: String, username: String, password: String) : this() {
         connect(address, username, password)
@@ -56,9 +56,29 @@ class BotvacController() : Serializable {
         this.inaccuracyFilterRatio = inaccuracyFilterRatio
     }
 
+    constructor(useIcp: Boolean) : this() {
+        this.useIcp = useIcp
+    }
+
     constructor(minPointDistance: Int, inaccuracyFilterRatio: Double) : this() {
         this.minPointDistance = minPointDistance
         this.inaccuracyFilterRatio = inaccuracyFilterRatio
+    }
+
+    constructor(minPointDistance: Int, useIcp: Boolean) : this() {
+        this.minPointDistance = minPointDistance
+        this.useIcp = useIcp
+    }
+
+    constructor(inaccuracyFilterRatio: Double, useIcp: Boolean) : this() {
+        this.inaccuracyFilterRatio = inaccuracyFilterRatio
+        this.useIcp = useIcp
+    }
+
+    constructor(minPointDistance: Int, inaccuracyFilterRatio: Double, useIcp: Boolean) : this() {
+        this.minPointDistance = minPointDistance
+        this.inaccuracyFilterRatio = inaccuracyFilterRatio
+        this.useIcp = useIcp
     }
 
     constructor(
@@ -85,11 +105,59 @@ class BotvacController() : Serializable {
         address: String,
         username: String,
         password: String,
+        useIcp: Boolean
+    ) : this() {
+        this.useIcp = useIcp
+        connect(address, username, password)
+    }
+
+    constructor(
+        address: String,
+        username: String,
+        password: String,
         minPointDistance: Int,
         inaccuracyFilterRatio: Double
     ) : this() {
         this.minPointDistance = minPointDistance
         this.inaccuracyFilterRatio = inaccuracyFilterRatio
+        connect(address, username, password)
+    }
+
+    constructor(
+        address: String,
+        username: String,
+        password: String,
+        minPointDistance: Int,
+        useIcp: Boolean
+    ) : this() {
+        this.minPointDistance = minPointDistance
+        this.useIcp = useIcp
+        connect(address, username, password)
+    }
+
+    constructor(
+        address: String,
+        username: String,
+        password: String,
+        inaccuracyFilterRatio: Double,
+        useIcp: Boolean
+    ) : this() {
+        this.inaccuracyFilterRatio = inaccuracyFilterRatio
+        this.useIcp = useIcp
+        connect(address, username, password)
+    }
+
+    constructor(
+        address: String,
+        username: String,
+        password: String,
+        minPointDistance: Int,
+        inaccuracyFilterRatio: Double,
+        useIcp: Boolean
+    ) : this() {
+        this.minPointDistance = minPointDistance
+        this.inaccuracyFilterRatio = inaccuracyFilterRatio
+        this.useIcp = useIcp
         connect(address, username, password)
     }
 
@@ -237,7 +305,7 @@ class BotvacController() : Serializable {
                     )
                 )
             }
-            if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty() && useICP) {
+            if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty() && useIcp) {
                 println("\nICP pose estimate used")
                 println("Location: ${botvac.location}")
                 println("Angle: ${botvac.angle}")

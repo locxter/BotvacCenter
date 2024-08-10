@@ -1,6 +1,7 @@
 package com.github.locxter.botvaccenter.gui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.github.locxter.botvaccenter.gui.components.ConfirmDialog
+import com.github.locxter.botvaccenter.gui.components.Dropdown
 import com.github.locxter.botvaccenter.gui.components.InfoDialog
 import com.github.locxter.botvaccenter.gui.components.Label
 import com.github.locxter.botvaccenter.gui.components.MapVisualization
@@ -59,6 +61,7 @@ data class MappingScreen(
         val pathfinder by remember { mutableStateOf(Pathfinder(50)) }
         var path by remember { mutableStateOf(Path()) }
         var speedInput by remember { mutableStateOf(175) }
+        var useIcp by remember { mutableStateOf(true) }
         var showLoadingPopup by remember { mutableStateOf(false) }
         var showErrorPopup by remember { mutableStateOf(false) }
         var showFollowPathPopup by remember { mutableStateOf(false) }
@@ -109,20 +112,33 @@ data class MappingScreen(
                 },
                 modifier = Modifier.weight(1f).fillMaxSize().padding(bottom = 10.dp)
             )
-            Label("Speed:", modifier = Modifier.padding(bottom = 5.dp))
-            OutlinedTextField(
-                value = speedInput.toString(),
-                onValueChange = {
-                    speedInput = try {
-                        min(max(Integer.valueOf(it), 1), 350)
-                    } catch (_: Exception) {
-                        1
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
-            )
+            Row(modifier = Modifier.padding(bottom = 10.dp)) {
+                Column(modifier = Modifier.padding(end = 5.dp).weight(1f)) {
+                    Label("Speed:", modifier = Modifier.padding(bottom = 5.dp))
+                    OutlinedTextField(
+                        value = speedInput.toString(),
+                        onValueChange = {
+                            speedInput = try {
+                                min(max(Integer.valueOf(it), 1), 350)
+                            } catch (_: Exception) {
+                                1
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                Column(modifier = Modifier.padding(start = 5.dp).weight(1f)) {
+                    Label("ICP:", modifier = Modifier.padding(bottom = 5.dp))
+                    Dropdown(
+                        listOf("ON", "OFF"),
+                        selected = if (useIcp) 0 else 1,
+                        enabled = status == EStatus.CONNECTED,
+                        onSelect = { index, _ -> useIcp = index == 0; botvacController.useIcp = useIcp },
+                    )
+                }
+            }
             Button(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                 onClick = {
@@ -234,6 +250,7 @@ data class MappingScreen(
                                 }*/
                                 path.points.clear()
                             } catch (exception: Exception) {
+                                path.points.clear()
                                 showErrorPopup = true
                             }
                         }
