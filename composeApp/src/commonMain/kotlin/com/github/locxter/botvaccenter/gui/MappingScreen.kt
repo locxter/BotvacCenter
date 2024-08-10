@@ -56,7 +56,7 @@ data class MappingScreen(
         val status by remember { mutableStateOf(botvacController.status) }
         var mappingEnabled by remember { mutableStateOf(false) }
         var botvac by remember { mutableStateOf(botvacController.botvac.getDeepCopy()) }
-        val pathfinder by remember { mutableStateOf(Pathfinder(50)) }
+        val pathfinder by remember { mutableStateOf(Pathfinder(100)) }
         var path by remember { mutableStateOf(Path()) }
         var speedInput by remember { mutableStateOf(175) }
         var showLoadingPopup by remember { mutableStateOf(false) }
@@ -88,6 +88,9 @@ data class MappingScreen(
             MapVisualization(
                 botvac = botvac,
                 onClick = { target ->
+                    println("\nPath size: ${path.points.size}")
+                    println("Location: ${botvac.location}")
+                    println("Target: $target")
                     if (mappingEnabled && botvac.map.points.isNotEmpty() && path.points.isEmpty()) {
                         showLoadingPopup = true
                         CoroutineScope(Dispatchers.IO).launch {
@@ -97,6 +100,7 @@ data class MappingScreen(
                                 botvac.location,
                                 target
                             )
+                            println("Path found: ${path.points.isNotEmpty()}")
                             // Show a confirmation dialog
                             if (path.points.isNotEmpty()) {
                                 showFollowPathPopup = true
@@ -193,12 +197,45 @@ data class MappingScreen(
                     if (path.points.isNotEmpty()) {
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
+                                val target = Point(path.points.last().x, path.points.last().y)
+                                val threshold = max(pathfinder.simplificationFactor, 50)
+                                while (path.points.isNotEmpty() &&
+                                    (botvac.location.x < target.x - threshold || botvac.location.x > target.x + threshold ||
+                                            botvac.location.y < target.y - threshold || botvac.location.y > target.y + threshold)
+                                ) {
+                                    botvacController.moveToPoint(
+                                        path.points.first(),
+                                        speedInput,
+                                        500
+                                    )
+                                    botvac = botvacController.botvac.getDeepCopy()
+                                    botvacController.updateLidar()
+                                    botvac = botvacController.botvac.getDeepCopy()
+                                    path.points.clear()
+                                    pathfinder.map = botvac.map
+                                    path = pathfinder.findPath(
+                                        botvac.location,
+                                        target
+                                    )
+                                    println("\nTarget: $target")
+                                    println("Location: ${botvac.location}")
+                                    println(
+                                        "Not there: ${
+                                            botvac.location.x <= target.x - pathfinder.simplificationFactor ||
+                                                    botvac.location.x >= target.x + pathfinder.simplificationFactor ||
+                                                    botvac.location.y <= target.y - pathfinder.simplificationFactor ||
+                                                    botvac.location.y >= target.y + pathfinder.simplificationFactor
+                                        }"
+                                    )
+                                    println("Path size: ${path.points.size}")
+                                }
+                                /*
                                 for (point in path.points) {
                                     botvacController.moveToPoint(point, 175)
                                     botvac = botvacController.botvac.getDeepCopy()
                                     botvacController.updateLidar()
                                     botvac = botvacController.botvac.getDeepCopy()
-                                }
+                                }*/
                                 path.points.clear()
                             } catch (exception: Exception) {
                                 showErrorPopup = true

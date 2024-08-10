@@ -246,34 +246,52 @@ class BotvacController() : Serializable {
                 println("New scan size: ${botvac.scan.points.size}")
                 println("Old scan size: ${botvac.oldScan.points.size}")
                 val alignment = icp.alignPointClouds(
-                    botvac.scan.toIcpPointCloud(),
-                    botvac.oldScan.toIcpPointCloud()
+                    botvac.oldScan.toIcpPointCloud(),
+                    botvac.scan.toIcpPointCloud()
                 )
                 println("ICP translation: ${alignment.translation}")
                 println("ICP rotation: ${alignment.rotation}")
                 val icpLocation = Point(
-                    botvac.scanLocation.x + (alignment.translation.x).roundToInt(),
-                    botvac.scanLocation.y + (alignment.translation.y).roundToInt()
+                    botvac.scanLocation.x - (alignment.translation.x).roundToInt(),
+                    botvac.scanLocation.y - (alignment.translation.y).roundToInt()
                 )
                 // Maybe not correct?
-                val icpAngle = (botvac.scanAngle - (alignment.rotation % 360) + 360) % 360
+                val icpAngle = (botvac.scanAngle + (alignment.rotation % 360) + 360) % 360
                 println("ICP location: $icpLocation")
                 println("ICP angle: $icpAngle")
-                if (icpLocation.x >= botvac.location.x - max(botvac.location.x * 0.2, 200.0) &&
-                    icpLocation.x <= botvac.location.x + max(botvac.location.x * 0.2, 200.0)
+                var useMixedLocation = true
+                if (icpLocation.x >= botvac.location.x - max(botvac.location.x * 0.1, 100.0) &&
+                    icpLocation.x <= botvac.location.x + max(botvac.location.x * 0.1, 100.0)
                 ) {
+                    println("Use ICP location x")
                     botvac.location = Point(icpLocation.x, botvac.location.y)
+                    useMixedLocation = false
                 }
-                if (icpLocation.y >= botvac.location.y - max(botvac.location.y * 0.2, 200.0) &&
-                    icpLocation.y <= botvac.location.y + max(botvac.location.y * 0.2, 200.0)
+                if (icpLocation.y >= botvac.location.y - max(botvac.location.y * 0.1, 100.0) &&
+                    icpLocation.y <= botvac.location.y + max(botvac.location.y * 0.1, 100.0)
                 ) {
+                    println("Use ICP location y")
                     botvac.location = Point(botvac.location.x, icpLocation.y)
+                    useMixedLocation = false
                 }
-                if (abs(botvac.angle - icpAngle) < 36.0) {
+                if (abs(botvac.angle - icpAngle) < max(abs(botvac.angle) * 0.1, 36.0)) {
                     botvac.angle = icpAngle
+                    val distance = sqrt(
+                        (botvac.location.x - botvac.scanLocation.x).toDouble().pow(2) +
+                                (botvac.location.y - botvac.scanLocation.y).toDouble().pow(2)
+                    )
+                    val mixedLocation = Point(
+                        botvac.scanLocation.x + (distance * sin(botvac.angle * (PI / 180.0))).roundToInt(),
+                        botvac.scanLocation.y + (distance * cos(botvac.angle * (PI / 180.0))).roundToInt()
+                    )
+                    println("Mixed location: $mixedLocation")
+                    if (useMixedLocation) {
+                        println("Use mixed location")
+                        botvac.location = mixedLocation
+                    }
                 }
             }
-            println("\nFinal nocation: ${botvac.location}")
+            println("\nFinal location: ${botvac.location}")
             println("Final angle: ${botvac.angle}")
             for (polarPoint in rawScan.points) {
                 var unique = true
