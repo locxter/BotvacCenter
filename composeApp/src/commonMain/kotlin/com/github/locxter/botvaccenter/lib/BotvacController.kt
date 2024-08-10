@@ -243,8 +243,8 @@ class BotvacController() : Serializable {
                 println("Angle: ${botvac.angle}")
                 println("Scan location: ${botvac.scanLocation}")
                 println("Scan angle: ${botvac.scanAngle}")
-                println("New scan size: ${botvac.scan.points.size}")
                 println("Old scan size: ${botvac.oldScan.points.size}")
+                println("New scan size: ${botvac.scan.points.size}")
                 val alignment = icp.alignPointClouds(
                     botvac.oldScan.toIcpPointCloud(),
                     botvac.scan.toIcpPointCloud()

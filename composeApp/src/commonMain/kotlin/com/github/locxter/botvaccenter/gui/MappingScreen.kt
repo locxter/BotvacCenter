@@ -56,7 +56,7 @@ data class MappingScreen(
         val status by remember { mutableStateOf(botvacController.status) }
         var mappingEnabled by remember { mutableStateOf(false) }
         var botvac by remember { mutableStateOf(botvacController.botvac.getDeepCopy()) }
-        val pathfinder by remember { mutableStateOf(Pathfinder(100)) }
+        val pathfinder by remember { mutableStateOf(Pathfinder(50)) }
         var path by remember { mutableStateOf(Path()) }
         var speedInput by remember { mutableStateOf(175) }
         var showLoadingPopup by remember { mutableStateOf(false) }
@@ -88,9 +88,6 @@ data class MappingScreen(
             MapVisualization(
                 botvac = botvac,
                 onClick = { target ->
-                    println("\nPath size: ${path.points.size}")
-                    println("Location: ${botvac.location}")
-                    println("Target: $target")
                     if (mappingEnabled && botvac.map.points.isNotEmpty() && path.points.isEmpty()) {
                         showLoadingPopup = true
                         CoroutineScope(Dispatchers.IO).launch {
@@ -100,7 +97,6 @@ data class MappingScreen(
                                 botvac.location,
                                 target
                             )
-                            println("Path found: ${path.points.isNotEmpty()}")
                             // Show a confirmation dialog
                             if (path.points.isNotEmpty()) {
                                 showFollowPathPopup = true
