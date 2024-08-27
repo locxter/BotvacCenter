@@ -49,6 +49,7 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 
 ### Useful resources
 
+- Really good introduction to SLAM: https://www.youtube.com/watch?v=xqjVTE7QvOg
 - https://en.wikipedia.org/wiki/A*_search_algorithm
 - https://en.wikipedia.org/wiki/Iterative_closest_point
 - https://andrewjkramer.net/intro-to-lidar-slam/
