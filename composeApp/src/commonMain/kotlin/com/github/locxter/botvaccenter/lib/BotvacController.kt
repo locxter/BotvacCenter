@@ -306,61 +306,42 @@ class BotvacController() : Serializable {
                 )
             }
             if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty() && useIcp) {
-                println("\nICP pose estimate used")
-                println("Location: ${botvac.location}")
-                println("Angle: ${botvac.angle}")
-                println("Scan location: ${botvac.scanLocation}")
-                println("Scan angle: ${botvac.scanAngle}")
-                println("Old scan size: ${botvac.oldScan.points.size}")
-                println("New scan size: ${botvac.scan.points.size}")
+                println("\n\nICP pose estimation used")
+                println("\nOdometry location: ${botvac.location}")
+                var distance = sqrt(
+                    (botvac.location.x - botvac.scanLocation.x).toDouble().pow(2) +
+                            (botvac.location.y - botvac.scanLocation.y).toDouble().pow(2)
+                )
+                println("Odometry distance: $distance")
+                println("Odometry angle: ${botvac.angle}")
                 val alignment = icp.alignPointClouds(
                     botvac.oldScan.toIcpPointCloud(),
                     botvac.scan.toIcpPointCloud()
                 )
                 println("ICP translation: ${alignment.translation}")
                 println("ICP rotation: ${alignment.rotation}")
-                val icpLocation = Point(
-                    botvac.scanLocation.x - (alignment.translation.x).roundToInt(),
-                    botvac.scanLocation.y - (alignment.translation.y).roundToInt()
-                )
-                // Maybe not correct?
+                val icpDistance =
+                    sqrt(alignment.translation.x.pow(2) + alignment.translation.y.pow(2))
                 val icpAngle = (botvac.scanAngle + (alignment.rotation % 360) + 360) % 360
-                println("ICP location: $icpLocation")
+                println("ICP distance: $icpDistance")
                 println("ICP angle: $icpAngle")
-                var useMixedLocation = true
-                if (icpLocation.x >= botvac.location.x - max(botvac.location.x * 0.1, 100.0) &&
-                    icpLocation.x <= botvac.location.x + max(botvac.location.x * 0.1, 100.0)
+                if (icpDistance >= distance - max(distance * 0.1, 100.0) &&
+                    icpDistance <= distance
                 ) {
-                    println("Use ICP location x")
-                    botvac.location = Point(icpLocation.x, botvac.location.y)
-                    useMixedLocation = false
-                }
-                if (icpLocation.y >= botvac.location.y - max(botvac.location.y * 0.1, 100.0) &&
-                    icpLocation.y <= botvac.location.y + max(botvac.location.y * 0.1, 100.0)
-                ) {
-                    println("Use ICP location y")
-                    botvac.location = Point(botvac.location.x, icpLocation.y)
-                    useMixedLocation = false
+                    distance = icpDistance
+                    println("\nUSE ICP DISTANCE")
                 }
                 if (abs(botvac.angle - icpAngle) < max(abs(botvac.angle) * 0.1, 36.0)) {
                     botvac.angle = icpAngle
-                    val distance = sqrt(
-                        (botvac.location.x - botvac.scanLocation.x).toDouble().pow(2) +
-                                (botvac.location.y - botvac.scanLocation.y).toDouble().pow(2)
-                    )
-                    val mixedLocation = Point(
-                        botvac.scanLocation.x + (distance * sin(botvac.angle * (PI / 180.0))).roundToInt(),
-                        botvac.scanLocation.y + (distance * cos(botvac.angle * (PI / 180.0))).roundToInt()
-                    )
-                    println("Mixed location: $mixedLocation")
-                    if (useMixedLocation) {
-                        println("Use mixed location")
-                        botvac.location = mixedLocation
-                    }
+                    println("\nUSE ICP ANGLE")
                 }
+                botvac.location = Point(
+                    botvac.scanLocation.x + (distance * sin(botvac.angle * (PI / 180.0))).roundToInt(),
+                    botvac.scanLocation.y + (distance * cos(botvac.angle * (PI / 180.0))).roundToInt()
+                )
+                println("\nFinal location: ${botvac.location}")
+                println("Final angle: ${botvac.angle}")
             }
-            println("\nFinal location: ${botvac.location}")
-            println("Final angle: ${botvac.angle}")
             for (polarPoint in rawScan.points) {
                 var unique = true
                 val point = Point(
@@ -388,59 +369,6 @@ class BotvacController() : Serializable {
                     botvac.map.points.add(point)
                 }
             }
-            /*
-            if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty()) {
-                val o2nTransform = icp.alignPointClouds(
-                    botvac.oldScan.toIcpPointCloud(),
-                    botvac.scan.toIcpPointCloud()
-                )
-                println("\n\nOLD SIZE: ${botvac.oldScan.points.size}")
-                println("SCAN SIZE: ${botvac.scan.points.size}")
-                println("\nTRANSFORMATION OLD TO NEW:")
-                println("Translation: ${o2nTransform.translation}")
-                println("Rotation: ${o2nTransform.rotation}")
-                println("Rotation: ${360 - o2nTransform.rotation}")
-                println("Rotation: ${-o2nTransform.rotation}")
-
-                val n2oTransform = icp.alignPointClouds(
-                    botvac.scan.toIcpPointCloud(),
-                    botvac.oldScan.toIcpPointCloud()
-                )
-                println("\nTRANSFORMATION NEW TO OLD:")
-                println("Translation: ${n2oTransform.translation}")
-                println("Rotation: ${n2oTransform.rotation}")
-                println("Rotation: ${360 - n2oTransform.rotation}")
-                println("Rotation: ${-n2oTransform.rotation}")
-
-                println("\nTRANSFORMATION MIXED:")
-                println(
-                    "Translation: ${
-                        IcpPoint(
-                            (-o2nTransform.translation.x + n2oTransform.translation.x) / 2.0,
-                            (-o2nTransform.translation.y + n2oTransform.translation.y) / 2.0,
-                        )
-                    }"
-                )
-                /*println("Translation ALT: ${IcpPoint(
-                    (o2nTransform.translation.x - n2oTransform.translation.x) / 2.0,
-                    (o2nTransform.translation.y - n2oTransform.translation.y) / 2.0,
-                )}")*/
-                println("Rotation MIX: ${(-o2nTransform.rotation + n2oTransform.rotation) / 2.0}")
-                println("Rotation O2N: ${o2nTransform.rotation}")
-                println("Rotation N2O: ${n2oTransform.rotation}")
-
-                println("\nREFERENCE")
-                println(
-                    "Translation: ${
-                        Point(
-                            botvac.location.x - botvac.scanLocation.x,
-                            botvac.location.y - botvac.scanLocation.y
-                        )
-                    }"
-                )
-                println("Rotation: ${botvac.angle - botvac.scanAngle}")
-            }
-            */
             botvac.scanLocation = Point(botvac.location.x, botvac.location.y)
             botvac.scanAngle = botvac.angle
         }

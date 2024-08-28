@@ -135,7 +135,10 @@ data class MappingScreen(
                         listOf("ON", "OFF"),
                         selected = if (useIcp) 0 else 1,
                         enabled = status == EStatus.CONNECTED,
-                        onSelect = { index, _ -> useIcp = index == 0; botvacController.useIcp = useIcp },
+                        onSelect = { index, _ ->
+                            useIcp = index == 0
+                            botvacController.useIcp = useIcp
+                        },
                     )
                 }
             }
@@ -210,10 +213,12 @@ data class MappingScreen(
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 val target = Point(path.points.last().x, path.points.last().y)
-                                val threshold = max(pathfinder.simplificationFactor, 50)
+                                val targetThreshold = max(pathfinder.simplificationFactor, 50)
                                 while (path.points.isNotEmpty() &&
-                                    (botvac.location.x < target.x - threshold || botvac.location.x > target.x + threshold ||
-                                            botvac.location.y < target.y - threshold || botvac.location.y > target.y + threshold)
+                                    (botvac.location.x < target.x - targetThreshold ||
+                                            botvac.location.x > target.x + targetThreshold ||
+                                            botvac.location.y < target.y - targetThreshold ||
+                                            botvac.location.y > target.y + targetThreshold)
                                 ) {
                                     botvacController.moveToPoint(
                                         path.points.first(),
@@ -229,25 +234,7 @@ data class MappingScreen(
                                         botvac.location,
                                         target
                                     )
-                                    println("\nTarget: $target")
-                                    println("Location: ${botvac.location}")
-                                    println(
-                                        "Not there: ${
-                                            botvac.location.x <= target.x - pathfinder.simplificationFactor ||
-                                                    botvac.location.x >= target.x + pathfinder.simplificationFactor ||
-                                                    botvac.location.y <= target.y - pathfinder.simplificationFactor ||
-                                                    botvac.location.y >= target.y + pathfinder.simplificationFactor
-                                        }"
-                                    )
-                                    println("Path size: ${path.points.size}")
                                 }
-                                /*
-                                for (point in path.points) {
-                                    botvacController.moveToPoint(point, 175)
-                                    botvac = botvacController.botvac.getDeepCopy()
-                                    botvacController.updateLidar()
-                                    botvac = botvacController.botvac.getDeepCopy()
-                                }*/
                                 path.points.clear()
                             } catch (exception: Exception) {
                                 path.points.clear()
