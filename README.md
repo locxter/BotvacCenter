@@ -2,7 +2,7 @@
 
 ## Overview
 
-> This is a **work in progress**. Things aren't final and are due to change over time.
+> This is a **work in progress**. Things aren't quite final and may change over time.
 
 ![Overview](overview.png)
 
@@ -29,7 +29,7 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 - [x] Check, modify and enable/disable the cleaning schedule.
 - [x] Quickly set the current date and time with a single button press.
 - [x] Get extensive diagnostics data for troubleshooting.
-- [ ] Easily experiment with SLAM via inbuilt sensors (LIDAR and wheel odometry). 
+- [x] Easily experiment with SLAM via inbuilt sensors (LIDAR and wheel odometry). 
 
 ## SLAM
 
