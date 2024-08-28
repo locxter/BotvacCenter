@@ -39,7 +39,7 @@ kotlin {
             implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
             implementation("com.github.kittinunf.fuel:fuel:2.3.1")
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-            implementation("io.github.vinceglb:filekit-compose:0.7.0")
+            implementation("io.github.vinceglb:filekit-compose:0.8.1")
             implementation("org.slf4j:slf4j-nop:2.0.13")
         }
         desktopMain.dependencies {
@@ -97,6 +97,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            includeAllModules = true
             packageName = "BotvacCenter"
             packageVersion = "1.1.0"
             macOS {

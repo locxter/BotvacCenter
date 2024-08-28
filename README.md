@@ -69,3 +69,4 @@ After modding your Neato Botvac D85 with [btvcbrdg](https://github.com/locxter/b
 
 - Convert `.png` to `.ico` via `convert file.png -define icon:auto-resize=256,64,48,32,16 file.ico`.
 - Convert `.png` to `.icns` via `convert file.png file.icns`.
+- If the app throws a `ClassNotFoundException`, see this [section](https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md#configuring-included-jdk-modules) in the native distributions tutorial.
