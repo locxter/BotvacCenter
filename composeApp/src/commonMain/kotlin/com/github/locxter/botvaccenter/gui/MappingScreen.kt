@@ -77,6 +77,18 @@ data class MappingScreen(
             botvacController.botvac.scanLocation = Point()
             botvacController.botvac.scanAngle = 0.0
             botvac = botvacController.botvac.getDeepCopy()
+        }, onDisposed = {
+            mappingEnabled = false
+            botvacController.botvac.scan = Scan()
+            botvacController.botvac.map = Map()
+            botvacController.botvac.location = Point()
+            botvacController.botvac.angle = 0.0
+            botvacController.botvac.oldScan = Scan()
+            botvacController.botvac.oldLocation = Point()
+            botvacController.botvac.oldAngle = 0.0
+            botvacController.botvac.scanLocation = Point()
+            botvacController.botvac.scanAngle = 0.0
+            botvac = botvacController.botvac.getDeepCopy()
         })
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
@@ -218,7 +230,8 @@ data class MappingScreen(
                                     (botvac.location.x < target.x - targetThreshold ||
                                             botvac.location.x > target.x + targetThreshold ||
                                             botvac.location.y < target.y - targetThreshold ||
-                                            botvac.location.y > target.y + targetThreshold)
+                                            botvac.location.y > target.y + targetThreshold) &&
+                                    mappingEnabled
                                 ) {
                                     botvacController.moveToPoint(
                                         path.points.first(),
@@ -236,6 +249,18 @@ data class MappingScreen(
                                     )
                                 }
                                 path.points.clear()
+                                if (!mappingEnabled) {
+                                    botvacController.botvac.scan = Scan()
+                                    botvacController.botvac.map = Map()
+                                    botvacController.botvac.location = Point()
+                                    botvacController.botvac.angle = 0.0
+                                    botvacController.botvac.oldScan = Scan()
+                                    botvacController.botvac.oldLocation = Point()
+                                    botvacController.botvac.oldAngle = 0.0
+                                    botvacController.botvac.scanLocation = Point()
+                                    botvacController.botvac.scanAngle = 0.0
+                                    botvac = botvacController.botvac.getDeepCopy()
+                                }
                             } catch (exception: Exception) {
                                 path.points.clear()
                                 showErrorPopup = true
