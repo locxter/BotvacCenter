@@ -102,6 +102,7 @@ data class MappingScreen(
             }
             MapVisualization(
                 botvac = botvac,
+                path = path,
                 onClick = { target ->
                     if (mappingEnabled && botvac.map.points.isNotEmpty() && path.points.isEmpty()) {
                         showLoadingPopup = true

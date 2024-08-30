@@ -10,12 +10,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
@@ -25,6 +23,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import com.github.locxter.botvaccenter.model.Botvac
+import com.github.locxter.botvaccenter.model.Path
 import com.github.locxter.botvaccenter.model.Point
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.PI
@@ -37,13 +36,16 @@ import kotlin.math.sin
 @Composable
 fun MapVisualization(
     botvac: Botvac,
+    path: Path,
     onClick: (point: Point) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor = Color(18, 18, 18)
     val mapColor = Color(255, 255, 255)
+    val pathColor = Color(255, 0, 0)
     val robotColor = Color(0, 255, 0)
     val tempBotvac = botvac.getDeepCopy()
+    val tempPath = path.getDeepCopy()
     val textMeasurer = rememberTextMeasurer()
     var scalingRatio by remember { mutableStateOf(0.0f) }
     var xOffset by remember { mutableStateOf(0.0f) }
@@ -85,6 +87,10 @@ fun MapVisualization(
             Point(it.x - xMin, it.y - yMin)
         }
         tempBotvac.location = Point(tempBotvac.location.x - xMin, tempBotvac.location.y - yMin)
+        tempPath.points.replaceAll {
+            Point(it.x - xMin, it.y - yMin)
+        }
+        tempPath.points.add(0, Point(tempBotvac.location.x, tempBotvac.location.y))
     }
     Canvas(
         modifier = modifier.clip(RectangleShape).pointerInput(Unit) {
@@ -135,17 +141,34 @@ fun MapVisualization(
                 yOffset = (height - (yRange * scalingRatio)) / 2.0f
             }
             translate(xOffset, yOffset) {
-                // Draw the points
-                val points = tempBotvac.map.points.map {
+                // Draw the map and path
+                val mapPoints = tempBotvac.map.points.map {
+                    Offset((it.x * scalingRatio), ((yRange - it.y) * scalingRatio))
+                }
+                val pathPoints = tempPath.points.map {
                     Offset((it.x * scalingRatio), ((yRange - it.y) * scalingRatio))
                 }
                 drawPoints(
-                    points = points,
+                    points = mapPoints,
                     pointMode = PointMode.Points,
                     color = mapColor,
                     strokeWidth = max(maxRange * 0.01f * scalingRatio, 4.0f),
                     cap = StrokeCap.Round
                 )
+                drawPoints(
+                    points = pathPoints,
+                    pointMode = PointMode.Polygon,
+                    color = pathColor,
+                    strokeWidth = max(maxRange * 0.0025f * scalingRatio, 1.0f),
+                    cap = StrokeCap.Round
+                )
+                if (pathPoints.isNotEmpty()) {
+                    drawCircle(
+                        color = pathColor,
+                        radius = max(maxRange * 0.0075f * scalingRatio, 3.0f),
+                        center = pathPoints.last()
+                    )
+                }
                 // Draw the robot and its movement direction
                 drawCircle(
                     color = robotColor,
@@ -188,5 +211,5 @@ fun MapVisualization(
 @Composable
 @Preview
 fun MapVisualizationPreview() {
-    MapVisualization(Botvac(), {})
+    MapVisualization(Botvac(), Path(), {})
 }
