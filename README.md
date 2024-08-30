@@ -37,7 +37,7 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 
 1. Initial scan of the environment.
 2. If the target position isn't equal to the current position:
-   1. Calculate the path from current to target via the A* path finding algorithm.
+   1. Calculate the path from current to target via a modified A* path finding algorithm including a cost map (prefer routes far away from obstacles).
    2. Follow the first 50 cm (or whatever distance between scans proves to be reliable) of the path.
    3. Perform another scan.
    4. If needed, perform some post-processing to clean the scan.
