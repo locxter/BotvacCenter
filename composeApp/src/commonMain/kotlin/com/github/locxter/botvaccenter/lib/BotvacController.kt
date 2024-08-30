@@ -306,41 +306,29 @@ class BotvacController() : Serializable {
                 )
             }
             if (botvac.scan.points.isNotEmpty() && botvac.oldScan.points.isNotEmpty() && useIcp) {
-                println("\n\nICP pose estimation used")
-                println("\nOdometry location: ${botvac.location}")
                 var distance = sqrt(
                     (botvac.location.x - botvac.scanLocation.x).toDouble().pow(2) +
                             (botvac.location.y - botvac.scanLocation.y).toDouble().pow(2)
                 )
-                println("Odometry distance: $distance")
-                println("Odometry angle: ${botvac.angle}")
-                val alignment = icp.alignPointClouds(
+                val icpAlignment = icp.alignPointClouds(
                     botvac.oldScan.toIcpPointCloud(),
                     botvac.scan.toIcpPointCloud()
                 )
-                println("ICP translation: ${alignment.translation}")
-                println("ICP rotation: ${alignment.rotation}")
                 val icpDistance =
-                    sqrt(alignment.translation.x.pow(2) + alignment.translation.y.pow(2))
-                val icpAngle = (botvac.scanAngle + (alignment.rotation % 360) + 360) % 360
-                println("ICP distance: $icpDistance")
-                println("ICP angle: $icpAngle")
+                    sqrt(icpAlignment.translation.x.pow(2) + icpAlignment.translation.y.pow(2))
+                val icpAngle = (botvac.scanAngle + (icpAlignment.rotation % 360) + 360) % 360
                 if (icpDistance >= distance - max(distance * 0.1, 100.0) &&
                     icpDistance <= distance
                 ) {
                     distance = icpDistance
-                    println("\nUSE ICP DISTANCE")
                 }
                 if (abs(botvac.angle - icpAngle) < max(abs(botvac.angle) * 0.1, 36.0)) {
                     botvac.angle = icpAngle
-                    println("\nUSE ICP ANGLE")
                 }
                 botvac.location = Point(
                     botvac.scanLocation.x + (distance * sin(botvac.angle * (PI / 180.0))).roundToInt(),
                     botvac.scanLocation.y + (distance * cos(botvac.angle * (PI / 180.0))).roundToInt()
                 )
-                println("\nFinal location: ${botvac.location}")
-                println("Final angle: ${botvac.angle}")
             }
             for (polarPoint in rawScan.points) {
                 var unique = true
