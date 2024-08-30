@@ -8,7 +8,9 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 class Pathfinder() {
     private val directions = arrayOf(
@@ -207,8 +209,10 @@ class Pathfinder() {
             returnValue = true
         }
         for (otherPoint in map.points) {
-            if (otherPoint.x >= point.x - collisionBoxSize && otherPoint.x <= point.x + collisionBoxSize &&
-                otherPoint.y >= point.y - collisionBoxSize && otherPoint.y <= point.y + collisionBoxSize
+            if (sqrt(
+                    (otherPoint.x - point.x).toDouble().pow(2) +
+                            (otherPoint.y - point.y).toDouble().pow(2)
+                ).roundToInt() <= collisionBoxSize
             ) {
                 returnValue = true
             }
