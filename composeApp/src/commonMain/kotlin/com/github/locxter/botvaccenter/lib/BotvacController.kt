@@ -322,7 +322,7 @@ class BotvacController() : Serializable {
                 ) {
                     distance = icpDistance
                 }
-                if (abs(botvac.angle - icpAngle) < max(abs(botvac.angle) * 0.1, 36.0)) {
+                if (abs(botvac.angle - icpAngle) < 36.0) {
                     botvac.angle = icpAngle
                 }
                 botvac.location = Point(
