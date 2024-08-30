@@ -134,10 +134,8 @@ class Pathfinder() {
                 )
                 val successorPastCost = currentNode.pastCost + 1
                 // Skip invalid successor
-                if (detectCollision(successorPoint) || findNodeByPoint(
-                        closedList,
-                        successorPoint
-                    ) != null
+                if (detectCollision(successorPoint) ||
+                    findNodeByPoint(closedList, successorPoint) != null
                 ) {
                     continue
                 }
@@ -147,7 +145,9 @@ class Pathfinder() {
                     val successor = Node(
                         successorPoint,
                         successorPastCost,
-                        abs(successorPoint.x - targetAdjusted.x) + abs(successorPoint.y - targetAdjusted.y),
+                        abs(successorPoint.x - targetAdjusted.x) +
+                                abs(successorPoint.y - targetAdjusted.y) +
+                                calcObstacleCost(successorPoint),
                         currentNode
                     )
                     openList.add(successor)
@@ -202,9 +202,8 @@ class Pathfinder() {
     private fun detectCollision(point: Point): Boolean {
         val collisionBoxSize = ceil(250.0 / simplificationFactor).roundToInt()
         var returnValue = false
-        if (point.x < 0 || point.x > abs(xMin) + abs(xMax) || point.y < 0 || point.y > abs(yMin) + abs(
-                yMax
-            )
+        if (point.x < 0 || point.x > abs(xMin) + abs(xMax) || point.y < 0 ||
+            point.y > abs(yMin) + abs(yMax)
         ) {
             returnValue = true
         }
@@ -223,5 +222,22 @@ class Pathfinder() {
     // Helper method to find a node within a list by its point
     private fun findNodeByPoint(list: List<Node>, point: Point): Node? {
         return list.find { it.point.x == point.x && it.point.y == point.y }
+    }
+
+    // Helper method to calculate cost of coming close to obstacles
+    private fun calcObstacleCost(point: Point): Int {
+        val noCostDistance = 1250.0 / simplificationFactor.toDouble()
+        val weight = 2500.0 / simplificationFactor.toDouble()
+        var minDistance = Double.MAX_VALUE
+        for (otherPoint in map.points) {
+            val distance = sqrt(
+                (otherPoint.x - point.x).toDouble().pow(2) +
+                        (otherPoint.y - point.y).toDouble().pow(2)
+            )
+            if (distance < minDistance) {
+                minDistance = distance
+            }
+        }
+        return (max(1 - (minDistance / noCostDistance), 0.0) * weight).roundToInt()
     }
 }
