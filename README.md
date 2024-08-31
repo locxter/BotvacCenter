@@ -51,7 +51,11 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 
 ![Mapping early](mapping-early.mp4)
 
+https://github.com/user-attachments/assets/45cc72df-398e-46a4-860a-3ac96b8b1be7
+
 ![Mapping later](mapping-later.mp4)
+
+https://github.com/user-attachments/assets/cfbb268d-37dc-40b2-a895-026f322fc209
 
 ### Useful resources
 
