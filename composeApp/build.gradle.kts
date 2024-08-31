@@ -60,8 +60,8 @@ android {
         applicationId = "com.github.locxter.botvaccenter"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
         setProperty("archivesBaseName", "botvaccenter-$versionName")
     }
     packaging {
@@ -99,7 +99,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             includeAllModules = true
             packageName = "BotvacCenter"
-            packageVersion = "1.2.0"
+            packageVersion = "1.3.0"
             macOS {
                 iconFile.set(project.file("src/desktopMain/resources/icon.icns"))
             }
