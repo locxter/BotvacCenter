@@ -47,6 +47,12 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
    8. If needed, perform some post-processing to clean the map.
 3. Wait for the user to either set a new target position and then go the step 2 or stop the mapping process.
 
+### Example mapping runs
+
+![Mapping early](mapping-early.mp4)
+
+![Mapping later](mapping-later.mp4)
+
 ### Useful resources
 
 - Really good introduction to SLAM: https://www.youtube.com/watch?v=xqjVTE7QvOg
