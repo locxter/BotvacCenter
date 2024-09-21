@@ -2,13 +2,15 @@
 
 ## Overview
 
-> This is a **work in progress**. Things aren't quite final and may change over time.
-
 ![Overview](overview.png)
 
 This is a Kotlin Multiplatform app for controlling and experimenting with Neato Botvac D85 robot vacuums. It is loosely based on [btvccntrl-ng](https://github.com/locxter/btvccntrl-ng) and focuses on making everyday tasks easier (like setting the clock or starting the robot) as well as exploring SLAM (Simultaneous Localization And Mapping).
 
 **Prebuilt packages for Linux (.deb) and Android (.apk) can be found under [Releases](https://github.com/locxter/BotvacCenter/releases).**
+
+Also take a look at the project video on YouTube:
+
+[![Making the WORLD'S SMARTEST ROBOT vacuum DUMBER by building my own crude SLAM stack](https://img.youtube.com/vi/RbZyXtjPLz4/maxresdefault.jpg)](https://www.youtube.com/watch?v=RbZyXtjPLz4)
 
 ## Dependencies
 
