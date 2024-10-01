@@ -33,6 +33,13 @@ I generally try to minimize dependencies, but I'm a one man crew and can therefo
 - [x] Get extensive diagnostics data for troubleshooting.
 - [x] Easily experiment with SLAM via inbuilt sensors (LIDAR and wheel odometry). 
 
+Possible future ones:
+
+- [ ] Support for multiple robots (profiles)
+- [ ] Persist UI state for smoother experience (might need a DI framework or other navigation library?)
+- [ ] Path planning for autonomous room cleaning in straight lines (maybe fill area with spaced-apart points and determine route between them?)
+- [ ] Always clean the parameter of the room first (needs some sort of wall detection)
+
 ## SLAM
 
 ### Proposed algorithm
